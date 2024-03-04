@@ -1,12 +1,12 @@
 Package: BrazilCrime
 Version: 0.0.1
-Date: 2015-01-01 2024-02-20
+Date: 2024-02-20
 Title: Get crime data from Brazil
 Authors@R: c(person("Giovanni", "Vargette", role = c("aut", "cre"),
                      email = "giovannivargette@gmail.com"))
 Author: Giovanni Vargette [aut, cre]
 Maintainer: Giovanni Vargette <giovannivargette@gmail.com>
-Depends: R (>= 3.1.0), nlme, tidyverse, openxlsx
+Depends: R (>= 3.1.0), tidyverse, openxlsx
 Suggests: MASS
 Description: The package aims to collect data on crime in Brazil, as disclosed by the relevant authorities,
  and allow direct access to it through the R language.

@@ -1,3 +1,15 @@
+#' getData Function
+#'
+#'This function is responsible for collecting criminal data directly from the SINESP database.
+#'The data collected by this function starts temporally in January 2015 and goes until December 2022,
+#'covering crimes such as "Rape", "Vehicle Theft", "Intentional Homicide", "Bodily Injury Followed by Death",
+#'"Robbery of Financial Institution", "Cargo Theft", "Vehicle Robbery", "Robbery Followed by Death"
+#' and "Attempted Homicide".
+#'
+#'@example
+#' dados <- getData
+#'
+#'
 #' @export
 
 getData <- {
