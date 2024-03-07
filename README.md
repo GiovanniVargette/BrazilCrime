@@ -20,6 +20,7 @@ Lesão Corporal Seguida de Morte, Roubo a Insituição Financeira, Roubo de Carg
 
 ```bash
 install.packages("devtools")
+library(devtools)
 devtools::install_github("GiovanniVargette/BrazilCrime")
 library('BrazilCrime')
 ```
