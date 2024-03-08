@@ -6,7 +6,7 @@ Authors@R: c(person("Giovanni", "Vargette", role = c("aut", "cre"),
                      email = "giovannivargette@gmail.com"))
 Author: Giovanni Vargette [aut, cre]
 Maintainer: Giovanni Vargette <giovannivargette@gmail.com>
-Depends: R (>= 3.1.0), tidyverse, openxlsx
+Depends: R (>= 3.1.0), tidyverse, openxlsx, dplyr
 Suggests: MASS
 Description: The package aims to collect data on crime in Brazil, as disclosed by the relevant authorities,
  and allow direct access to it through the R language.
