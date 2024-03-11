@@ -23,3 +23,43 @@ install.packages("devtools")
 devtools::install_github("GiovanniVargette/BrazilCrime")
 library('BrazilCrime')
 ```
+# Exemplo de Uso das Funções
+### Função getData
+
+```bash
+dados <- getData #Realiza a coleta dos dados diretamente do Sinesp
+```
+
+### Função UFData
+
+```bash
+SP = UFData("São Paulo") #Retorna todos os dados para o Estado de São Paulo
+
+Sudeste <- UFData(c("São Paulo","Minas Gerais","Rio de Janeiro","Espírito Santo")) #Retorna todos os dados para os Estados da Região Sudeste
+```
+
+### Função yearData
+
+```bash
+y2016 = yearData(2016) #Retorna todos os dados para o ano de 2016
+
+y2016_18 <- yearData(2016:2018) #Retorna todos os dados para os anos de 2016, 2017 e 2018
+```
+
+### Função crimeType
+
+```bash
+estupro <- crimeType("Estupro") #Retorna os dados de estupros de todos os Estados, para todos os anos disponívies
+
+estu_e_homic <- crimeType(c("Estupro","Homicídio doloso")) #Retorna os dados de estupros e homicídios dolosos para todos os Estados, em todos os anos disponíveis
+```
+
+### Função allFilters
+
+```bash
+acre_15_homc <- allFilters("Acre",2015,"Homicídio doloso") #Retorna os dados de homicídio doloso, no ano de 2015 no Estado do Acre
+
+acre_sp_2016_18_estp_homic <- allFilters(c("Acre","São Paulo"),2016:2018,c("Estupro","Homicídio doloso")) #Retorna os dados de homicídio doloso e estupro, ocorridos durante 2016 e 2018, nos Estados do Acre e São Paulo
+```
+
+
