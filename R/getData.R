@@ -7,7 +7,7 @@
 #'Roubo de Carga (Cargo Theft), Roubo de Veículos (Vehicle Robbery), Roubo Seguido de Morte - Latrocínio (Robbery Followed by Death)
 #' and Tentativa de Homicídio (Attempted Homicide).
 #'
-#'@example
+#'@examples
 #' dados <- getData
 #'
 #'

@@ -3,14 +3,16 @@
 #'The UFData function filters the data based on the name of the Brazilian
 #'Federative Unit provided.
 #'
-#' @example SP = UFData("São Paulo")
+#' @examples
+#' SP = UFData("São Paulo")
 #'
+#' Sudeste <- UFData(c("São Paulo","Minas Gerais","Rio de Janeiro","Espírito Santo"))
 #'
 #'
 #' @export
 #'
 #'
-#' @param c(Estado) Use the UF's name to select the one you want.
+#' @param Estado Use the UF's name to select the desired States.
 #'
 
 

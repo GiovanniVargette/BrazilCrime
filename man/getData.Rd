@@ -18,4 +18,9 @@ Lesão Corporal Seguida de Morte (Bodily Injury Followed by Death), Roubo a Insi
 Roubo de Carga (Cargo Theft), Roubo de Veículos (Vehicle Robbery), Roubo Seguido de Morte - Latrocínio (Robbery Followed by Death)
 and Tentativa de Homicídio (Attempted Homicide).
 }
+\examples{
+dados <- getData
+
+
+}
 \keyword{datasets}

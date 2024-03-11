@@ -7,9 +7,16 @@
 UFData(Estado)
 }
 \arguments{
-\item{c(Estado)}{Use the UF's name to select the one you want.}
+\item{Estado}{Use the UF's name to select the desired States.}
 }
 \description{
 The UFData function filters the data based on the name of the Brazilian
 Federative Unit provided.
+}
+\examples{
+SP = UFData("São Paulo")
+
+Sudeste <- UFData(c("São Paulo","Minas Gerais","Rio de Janeiro","Espírito Santo"))
+
+
 }
