@@ -3,9 +3,7 @@
 
 ## Em andamento
 
-- Adição de funções de filtragem por geolocalização, temporalidade e tipologia criminal;
-- Adição da função que coleta os dados a partir de 2023 - esses dados possuem meio de divulgação diferente dos já coletados;
-- Documentação das funções existentes. 
+- Adição da função que coleta os dados a partir de 2023 - esses dados possuem meio de divulgação diferente dos já coletados; 
 
 ## Sobre o projeto
 
