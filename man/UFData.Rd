@@ -7,7 +7,7 @@
 UFData(Estado)
 }
 \arguments{
-\item{Estado}{Use the UF's name to select the one you want.}
+\item{c(Estado)}{Use the UF's name to select the one you want.}
 }
 \description{
 The UFData function filters the data based on the name of the Brazilian

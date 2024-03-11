@@ -13,8 +13,9 @@ getData
 \description{
 This function is responsible for collecting criminal data directly from the SINESP database.
 The data collected by this function starts temporally in January 2015 and goes until December 2022,
-covering crimes such as "Rape", "Vehicle Theft", "Intentional Homicide", "Bodily Injury Followed by Death",
-"Robbery of Financial Institution", "Cargo Theft", "Vehicle Robbery", "Robbery Followed by Death"
-and "Attempted Homicide".
+covering crimes such as: Estupro (Rape), Furto de Veículos (Vehicle Theft), Homicídio Doloso (Intentional Homicide),
+Lesão Corporal Seguida de Morte (Bodily Injury Followed by Death), Roubo a Insituição Financeira (Robbery of Financial Institution),
+Roubo de Carga (Cargo Theft), Roubo de Veículos (Vehicle Robbery), Roubo Seguido de Morte - Latrocínio (Robbery Followed by Death)
+and Tentativa de Homicídio (Attempted Homicide).
 }
 \keyword{datasets}
