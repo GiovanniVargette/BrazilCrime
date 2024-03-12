@@ -3,7 +3,7 @@
 
 ## Em andamento
 
-- Adição da função que coleta os dados a partir de 2023 - esses dados possuem meio de divulgação diferente dos já coletados;
+- Adição da função que coleta os dados divulgados na plataforma gov.br - esses dados possuem meio e formato de divulgação diferente dos já coletados;
 - Adição de dados sobre população, para permitir cálculos de taxas.
 
 ## Sobre o projeto
