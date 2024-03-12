@@ -60,5 +60,27 @@ acre_15_homc <- allFilters("Acre",2015,"Homicídio doloso") #Retorna os dados de
 
 acre_sp_2016_18_estp_homic <- allFilters(c("Acre","São Paulo"),2016:2018,c("Estupro","Homicídio doloso")) #Retorna os dados de homicídio doloso e estupro, ocorridos durante 2016 e 2018, nos Estados do Acre e São Paulo
 ```
+# Citação
+
+Para citar em trabalhos utilize
+
+```bash
+citation("BrazilCrime)
+
+#To cite package ‘BrazilCrime’ in publications use:
+
+#  Vargette G, Justus M (2024). _BrazilCrime: Crime data from Brazil_. R
+#  package version 0.0.2, <https://github.com/GiovanniVargette/BrazilCrime>.
+
+#A BibTeX entry for LaTeX users is
+
+#  @Manual{,
+#    title = {BrazilCrime: Crime data from Brazil},
+#    author = {Giovanni Vargette and Marcelo Justus},
+#    year = {2024},
+#    note = {R package version 0.0.2},
+#    url = {https://github.com/GiovanniVargette/BrazilCrime},
+#  }
 
 
+```
