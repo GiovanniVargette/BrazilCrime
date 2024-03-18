@@ -1,20 +1,16 @@
 Package: BrazilCrime
-Version: 0.0.2
-Date: 2024-02-20
-Title: Crime data from Brazil
-Authors@R: c(person("Giovanni", "Vargette", role = c("aut", "cre"),
-                     email = "giovannivargette@gmail.com"),
-                     person("Marcelo", "Justus", role = c("aut", "cre"),
-                     email = "mjustus@unicamp.br"))
-Author: Giovanni Vargette [aut, cre], Marcelo Justus [aut, cre]
-Maintainer: Giovanni Vargette <giovannivargette@gmail.com>
-Depends: R (>= 3.1.0), tidyverse, openxlsx, dplyr
-Suggests: MASS
-Description: The package aims to collect data on crime in Brazil, as disclosed by the relevant authorities,
- and allow direct access to it through the R language.
-License: `use_mit_license()`
+Title: What the Package Does (One Line, Title Case)
+Version: 0.0.0.9000
+Authors@R: 
+    person("First", "Last", , "first.last@example.com", role = c("aut", "cre"),
+           comment = c(ORCID = "YOUR-ORCID-ID"))
+Description: What the package does (one paragraph).
+License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.2.3
-URL: https://github.com/GiovanniVargette/BrazilCrime
-BugReports: https://github.com/GiovanniVargette/BrazilCrime/issues
+RoxygenNote: 7.3.1
+Imports: 
+    geobr,
+    janitor,
+    openxlsx,
+    tidyr
