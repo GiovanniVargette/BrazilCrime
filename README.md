@@ -10,17 +10,17 @@
 
 ## Roadmap de desenvolvimento
 
-- [X] Inclusão de shapes dos estados e argumento booleano para retornar dados espacializados;
+- [X]  Inclusão de shapes dos estados e argumento booleano para retornar dados espacializados;
 
-- [X] Adicionar argumento booleano para retornar o formato da tabela diferente com o tidyr;
+- [X]  Adicionar argumento booleano para retornar o formato da tabela diferente com o tidyr;
 
-- [ ] Criar logo do pacote; 
+- [ ]  Criar logo do pacote; 
 
-- [ ] Subir versão inicial para o CRAN;
+- [ ]  Subir versão inicial para o CRAN;
 
-- [ ] Inclusão de argumento booleano (relative_values) para retornar dados a cada 100 mil habitantes; e
+- [ ]  Inclusão de argumento booleano (relative_values) para retornar dados a cada 100 mil habitantes; e
 
-- [ ] Adição da função que coleta os dados divulgados na plataforma gov.br - esses dados possuem meio e formato de divulgação diferente dos já coletados.
+- [ ]  Adição da função que coleta os dados divulgados na plataforma gov.br - esses dados possuem meio e formato de divulgação diferente dos já coletados.
 
 
 
@@ -89,13 +89,13 @@ data_sul <- get_sinesp_data(state = c('PR','SC','RS'),
 # criar o mapa
 library(ggplot2)
 ggplot(data = data_sul) +
-  geom_sf(aes(fill = ocorrencias)) + # Usando 'ocorrencias' para definir a cor
+  geom_sf(aes(fill = ocorrencias)) + 
   theme_minimal() +
   labs(title = "Mapa de Ocorrências",
        subtitle = "Visualização espacial das ocorrências",
        fill = "Qtd de ocorrências")
 ```
-
+<img src="man/figures/figure.png" width="100%" />
 
 # Citação
 
@@ -106,7 +106,7 @@ citation("BrazilCrime)
 
 #To cite package ‘BrazilCrime’ in publications use:
 
-#  Vargette G, Justus M (2024). _BrazilCrime: Crime data from Brazil_. R
+#  Vargette G, Justus M, Laltuf I (2024). _BrazilCrime: Crime data from Brazil_. R
 #  package version 0.0.2, <https://github.com/GiovanniVargette/BrazilCrime>.
 
 #A BibTeX entry for LaTeX users is
@@ -115,7 +115,7 @@ citation("BrazilCrime)
 #    title = {BrazilCrime: Crime data from Brazil},
 #    author = {Giovanni Vargette, Marcelo Justus and Igor Laltuf},
 #    year = {2024},
-#    note = {R package version 0.0.2},
+#    note = {R package version 0.0.3},
 #    url = {https://github.com/GiovanniVargette/BrazilCrime},
 #  }
 
