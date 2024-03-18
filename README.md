@@ -1,68 +1,105 @@
 # BrazilCrime
+
+<!-- badges: start -->
 [![NPM](https://img.shields.io/npm/l/react)](https://github.com/GiovanniVargette/BrazilCrime/blob/master/LICENSE) 
+[![CRAN_Status_Badge](http://www.r-pkg.org/badges/version/BrazilCrime)](https://cran.r-project.org/package=BrazilCrime)
+[![CRAN_Download_Badge](http://cranlogs.r-pkg.org/badges/BrazilCrime)](https://CRAN.R-project.org/package=BrazilCrime)
+[![CRAN_Download_Badge](http://cranlogs.r-pkg.org/badges/grand-total/BrazilCrime)](https://CRAN.R-project.org/package=BrazilCrime)
+<!-- badges: end -->
 
-## Em andamento
 
-- Adição da função que coleta os dados divulgados na plataforma gov.br - esses dados possuem meio e formato de divulgação diferente dos já coletados;
-- Adição de dados sobre população, para permitir cálculos de taxas.
+## Roadmap de desenvolvimento
+
+- [X] Inclusão de shapes dos estados e argumento booleano para retornar dados espacializados;
+
+- [X] Adicionar argumento booleano para retornar o formato da tabela diferente com o tidyr;
+
+- [ ] Criar logo do pacote; 
+
+- [ ] Subir versão inicial para o CRAN;
+
+- [ ] Inclusão de argumento booleano (relative_values) para retornar dados a cada 100 mil habitantes; e
+
+- [ ] Adição da função que coleta os dados divulgados na plataforma gov.br - esses dados possuem meio e formato de divulgação diferente dos já coletados.
+
+
 
 ## Sobre o projeto
 
-A principal função do pacote BrazilCrime é disponibilizar de maneira acessível os dados sobre criminalidade e violência do Brasil, através da linguagem R e do software RStudio.
-Para isso coleta-se as informações divulgadas pelo Sinesp, órgao do Ministério da Justiça e Segurança Pública, esses dados são organizados em um data frame e disponibilizados ao usuário.
+A principal função do pacote BrazilCrime é disponibilizar de maneira acessível os dados sobre criminalidade e violência do Brasil, através da linguagem R.
 
-Nessa primeira versão, temos disponível dados a partir de janeiro de 2015 até dezembro de 2022, em estratificação por unidade federativa, para as seguintes tipologias criminais: Estupro, Furto de Veículo, Homicídio Doloso,
-Lesão Corporal Seguida de Morte, Roubo a Insituição Financeira, Roubo de Carga, Roubo de Veículo, Roubo Seguido de Morte (Latrocínio) e Tentativa de Homicídio.
+Para isso coleta-se as informações divulgadas pelo Sistema Nacional de Informações de Segurança Pública (Sinesp), órgao do Ministério da Justiça e Segurança Pública, esses dados são organizados em um data frame e disponibilizados ao usuário.
+
+Nessa primeira versão, temos disponível dados a partir de janeiro de 2015 até dezembro de 2022, em estratificação por unidade federativa, para as seguintes tipologias criminais: Estupro, Furto de Veículo, Homicídio Doloso, Lesão Corporal Seguida de Morte, Roubo a Insituição Financeira, Roubo de Carga, Roubo de Veículo, Roubo Seguido de Morte (Latrocínio) e Tentativa de Homicídio.
+
 
 
 # Instalação do Pacote
 
-```bash
+Versão oficial no CRAN:
+
+```r
+install.packages("BrazilCrime")
+library(BrazilCrime)
+```
+
+Versão de desenvolvimento:
+
+```r
 install.packages("devtools")
 devtools::install_github("GiovanniVargette/BrazilCrime")
-library('BrazilCrime')
+library(BrazilCrime)
 ```
+
+
 # Exemplo de Uso das Funções
-### Função getData
 
-```bash
-dados <- getData #Realiza a coleta dos dados diretamente do Sinesp
+Baixar todos os dados do SINESP entre 2015 e 2022 com granularidade mensal.
+
+```r
+dados <- get_sinesp_data() 
 ```
 
-### Função UFData
+Baixar todos os dados do SINESP entre 2015 e 2022 com granularidade anual.
 
-```bash
-SP = UFData("São Paulo") #Retorna todos os dados para o Estado de São Paulo
-
-Sudeste <- UFData(c("São Paulo","Minas Gerais","Rio de Janeiro","Espírito Santo")) #Retorna todos os dados para os Estados da Região Sudeste
+```r
+dados <- get_sinesp_data(granularity = 'year') 
 ```
 
-### Função yearData
+Baixar todos os dados do SINESP de 2018 e 2019 sobre homicídio doloso para os 
+estados de São Paulo, Rio de Janeiro e Minas Gerais com granularidade mensal.
 
-```bash
-y2016 = yearData(2016) #Retorna todos os dados para o ano de 2016
-
-y2016_18 <- yearData(2016:2018) #Retorna todos os dados para os anos de 2016, 2017 e 2018
+```r
+dados <- get_sinesp_data(state = c('RJ', 'SP', 'MG'),
+                         typology = 'Homicídio doloso',
+                         year = c(2018, 2019))
 ```
 
-### Função crimeType
 
-```bash
-estupro <- crimeType("Estupro") #Retorna os dados de estupros de todos os Estados, para todos os anos disponívies
+Baixar os dados dos estados do Sul do Brasil sobre roubo de veículos para o ano 
+de 2022 com granularidade anual e com os vetores espaciais das UFs.
 
-estu_e_homic <- crimeType(c("Estupro","Homicídio doloso")) #Retorna os dados de estupros e homicídios dolosos para todos os Estados, em todos os anos disponíveis
+```r
+data_sul <- get_sinesp_data(state = c('PR','SC','RS'),
+                            typology = 'Roubo de veículo',
+                            year = 2022,
+                            geom = T,
+                            granularity = 'year')
+
+# criar o mapa
+library(ggplot2)
+ggplot(data = data_sul) +
+  geom_sf(aes(fill = ocorrencias)) + # Usando 'ocorrencias' para definir a cor
+  theme_minimal() +
+  labs(title = "Mapa de Ocorrências",
+       subtitle = "Visualização espacial das ocorrências",
+       fill = "Qtd de ocorrências")
 ```
 
-### Função allFilters
 
-```bash
-acre_15_homc <- allFilters("Acre",2015,"Homicídio doloso") #Retorna os dados de homicídio doloso, no ano de 2015 no Estado do Acre
-
-acre_sp_2016_18_estp_homic <- allFilters(c("Acre","São Paulo"),2016:2018,c("Estupro","Homicídio doloso")) #Retorna os dados de homicídio doloso e estupro, ocorridos durante 2016 e 2018, nos Estados do Acre e São Paulo
-```
 # Citação
 
-Para citar em trabalhos utilize
+Para citar em trabalhos utilize:
 
 ```bash
 citation("BrazilCrime)
@@ -76,11 +113,10 @@ citation("BrazilCrime)
 
 #  @Manual{,
 #    title = {BrazilCrime: Crime data from Brazil},
-#    author = {Giovanni Vargette and Marcelo Justus},
+#    author = {Giovanni Vargette, Marcelo Justus and Igor Laltuf},
 #    year = {2024},
 #    note = {R package version 0.0.2},
 #    url = {https://github.com/GiovanniVargette/BrazilCrime},
 #  }
-
 
 ```
