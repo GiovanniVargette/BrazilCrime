@@ -18,9 +18,11 @@
 
 - [ ]  Subir versão inicial para o CRAN;
 
-- [ ]  Inclusão de argumento booleano (relative_values) para retornar dados a cada 100 mil habitantes; e
+- [ ]  Inclusão de argumento booleano (relative_values) para retornar dados a cada 100 mil habitantes (dados de projeções das populações mensais do IBGE); 
 
-- [ ]  Adição da função que coleta os dados divulgados na plataforma gov.br - esses dados possuem meio e formato de divulgação diferente dos já coletados.
+- [ ]  Adição da função que coleta os dados divulgados na plataforma gov.br (ministério da Justiça) - esses dados possuem meio e formato de divulgação diferente dos já coletados (https://www.gov.br/mj/pt-br/assuntos/sua-seguranca/seguranca-publica/estatistica/dados-nacionais-1/base-de-dados-e-notas-metodologicas-dos-gestores-estaduais-sinesp-vde-2022-e-2023); e
+
+- [ ]  Implementação de funções para modelos preditivos.
 
 
 
