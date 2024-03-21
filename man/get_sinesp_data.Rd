@@ -9,6 +9,7 @@ get_sinesp_data(
   typology = "all",
   year = "all",
   granularity = "month",
+  relative_values = F,
   pivot = F,
   geom = F
 )
