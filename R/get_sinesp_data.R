@@ -14,7 +14,8 @@
 #' @export
 
 get_sinesp_data <- function(state = 'all', typology = 'all', year = 'all',
-                            granularity = 'month', pivot = F, geom = F) {
+                            granularity = 'month', relative_values = F,
+                            pivot = F, geom = F) {
 
   options(scipen = 999, timeout = 1500)
 
@@ -31,7 +32,21 @@ get_sinesp_data <- function(state = 'all', typology = 'all', year = 'all',
         dplyr::arrange(uf, tipo_crime, ano) |>
         dplyr::left_join(ufs,
                          by = 'uf') |>
-        dplyr::select(uf, uf_abrev, tipo_crime, ano, mes, ocorrencias)
+        dplyr::select(uf, uf_abrev, tipo_crime, ano, mes, ocorrencias) |>
+        dplyr::mutate(mes = dplyr::case_when(
+          mes == 'janeiro' ~ 1,
+          mes == 'fevereiro' ~ 2,
+          mes == 'março' ~ 3,
+          mes == 'abril' ~ 4,
+          mes == 'maio' ~ 5,
+          mes == 'junho' ~ 6,
+          mes == 'julho' ~ 7,
+          mes == 'agosto' ~ 8,
+          mes == 'setembro' ~ 9,
+          mes == 'outubro' ~ 10,
+          mes == 'novembro' ~ 11,
+          mes == 'dezembro' ~ 12
+        ))
 
       message("Download completed.")
 
@@ -68,6 +83,41 @@ get_sinesp_data <- function(state = 'all', typology = 'all', year = 'all',
         dplyr::summarise(ocorrencias = sum(ocorrencias, na.rm = T))
     }
 
+    # argument relative_values
+    if (relative_values == T & granularity == 'month') {
+
+      pop <- readxl::read_excel('data-raw/pop_projetada_mensal_dia_15.xlsx') |>
+        dplyr::mutate(data = as.Date(data, origin = "1899-12-30"))
+
+      col_names <- names(pop)[2:29]
+
+      pop_long <- pop |>
+        tidyr::pivot_longer(
+          cols = all_of(col_names),
+          names_to = "uf",
+          values_to = "populacao"
+        ) |>
+        dplyr::select(uf, data, populacao)
+
+      df <- df |>
+        dplyr::mutate(data = as.Date(paste(ano, mes, "15", sep = "-"),
+                                     format = "%Y-%m-%d")) |>
+        dplyr::left_join(pop_long, by = c('data', 'uf')) |>
+        dplyr::mutate(ocorrencias_100k_hab = round(ocorrencias / populacao * 100000, 2)) |>
+        dplyr::select(-data)
+    }
+
+    if (relative_values == T & granularity == 'year') {
+      # dados da tabela 7358 do Sidra - projeção anual de 2018
+      pop <- readxl::read_excel('data-raw/pop_projetada_anual.xlsx') |>
+        dplyr::select(-cod)
+
+      df <- df |>
+        dplyr::mutate(ano = as.character(ano)) |>
+        dplyr::left_join(pop, by = c('ano', 'uf')) |>
+        dplyr::mutate(ocorrencias_100k_hab = round(ocorrencias / populacao * 100000, 2))
+    }
+
     # argument geom
     if (geom == T) {
       ufs_geom <- geobr::read_state() |>
@@ -83,15 +133,34 @@ get_sinesp_data <- function(state = 'all', typology = 'all', year = 'all',
     }
 
     # argument pivot
-    if (pivot == T) {
+    if (pivot == T & relative_values == F) {
 
        df <- df |>
          tidyr::pivot_wider(
            names_from = tipo_crime,
            values_from = ocorrencias) |>
-         dplyr::select(-geometry, everything(), geometry) |>
          janitor::clean_names()
+
+       if (geom == T) {
+         df <- df |>
+         dplyr::select(-geometry, everything(), geometry)
+       }
     }
+
+  if (pivot == T & relative_values == T) {
+
+    df <- df |>
+      dplyr::select(-ocorrencias) |>
+      tidyr::pivot_wider(
+        names_from = tipo_crime,
+        values_from = ocorrencias_100k_hab) |>
+      janitor::clean_names()
+
+    if (geom == T) {
+      df <- df |>
+        dplyr::select(-geometry, everything(), geometry)
+    }
+  }
 
     message("Query completed.")
 
