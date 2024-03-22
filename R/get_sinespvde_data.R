@@ -1,4 +1,4 @@
-#' get_gov_data Function
+#' get_sinesp-vde_data Function
 #'
 #'This function is responsible for collecting criminal data directly from the SINESP database.
 #'The data collected by this function starts temporally in January 2015 and goes until December 2022,
@@ -8,17 +8,17 @@
 #' and Tentativa de homicídio (Attempted Homicide).
 #'
 #'@examples
-#' dados <- get_gov_data()
+#' dados <- get_sinesp-vde_data()
 #'
 #'
 #' @export
 
-get_gov_data <- function(state = 'all', typology = 'all', year = 'all',
-                            granularity = 'month', pivot = F, geom = F) {
+get_sinespvde_data <- function(state = 'all', city = "all", category = "all", typology = 'all',
+                                year = 'all', granularity = 'month', pivot = F, geom = F) {
 
   options(scipen = 999, timeout = 1500)
 
-  link <- "https://www.gov.br/mj/pt-br/assuntos/sua-seguranca/seguranca-publica/estatistica/download/dnsp-base-de-dados/bancovde-2019_.xlsx"
+  link19 <- "https://www.gov.br/mj/pt-br/assuntos/sua-seguranca/seguranca-publica/estatistica/download/dnsp-base-de-dados/bancovde-2019_.xlsx"
 
   #ufs <- read.csv("BrazilCrime/data-raw/ufs.csv")
 
@@ -26,7 +26,7 @@ get_gov_data <- function(state = 'all', typology = 'all', year = 'all',
     # download and initial data treatment
     tryCatch({
 
-      df <- openxlsx::read.xlsx(link) |>
+      df <- openxlsx::read.xlsx(link19) |>
         dplyr::mutate(mes = dplyr::case_when(
           data_referencia == 43466 ~ 1,
           data_referencia == 43497 ~ 2,
@@ -40,9 +40,39 @@ get_gov_data <- function(state = 'all', typology = 'all', year = 'all',
           data_referencia == 43739 ~ 10,
           data_referencia == 43770 ~ 11,
           data_referencia == 43800 ~ 12)) |>
+        dplyr::mutate(categoria = dplyr::case_when(
+          evento == "Apreensão de Cocaína" ~ "drogas",
+          evento == "Apreensão de Maconha" ~ "drogas",
+          evento == "Tráfico de drogas" ~ "drogas",
+          evento == "Arma de fogo apreendida" ~ "arma de fogo",
+          evento == "Feminicídio" ~ "vitimas",
+          evento == "Homicídio doloso" ~ "vitimas",
+          evento == "Lesão corporal seguida de morte" ~ "vitimas",
+          evento == "Morte no trânsito ou em decorrência dele (exceto homicídio doloso)" ~ "vitimas",
+          evento == "Mortes a esclarecer (sem indício de crime)" ~ "vitimas",
+          evento == "Roubo seguido de morte (latrocínio)" ~ "vitimas",
+          evento == "Suicídio" ~ "vitimas",
+          evento == "Tentativa de homicídio" ~ "vitimas",
+          evento == "Estupro" ~ "vitimas",
+          evento == "Morte por intervenção de Agente do Estado" ~ "vitimas",
+          evento == "Furto de veículo" ~ "ocorrencia",
+          evento == "Roubo a instituição financeira" ~ "ocorrencia",
+          evento == "Roubo de carga" ~ "ocorrencia",
+          evento == "Roubo de veículo" ~ "ocorrencia",
+          evento == "Pessoa Desaparecida" ~ "desaparecidos/localizados",
+          evento == "Pessoa Localizada" ~ "desaparecidos/localizados",
+          evento == "Mandado de prisão cumprido" ~ "mandado de prisao cumprido",
+          evento == "Morte de Agente do Estado" ~ "profissionais de seguranca",
+          evento == "Suicídio de Agente do Estado" ~ "profissionais de seguranca",
+          evento == "Atendimento pré-hospitalar" ~ "bombeiros",
+          evento == "Busca e salvamento" ~ "bombeiros",
+          evento == "Combate a incêndios" ~ "bombeiros",
+          evento == "Emissão de Alvarás de licença" ~ "bombeiros",
+          evento == "Realização de vistorias" ~ "bombeiros")) |>
         dplyr::mutate(ano = 2019) |>
-        dplyr::select(uf,municipio,evento,ano,mes,arma,feminino,masculino,nao_informado,total,total_peso) |>
-        dplyr::arrange(uf,municipio,evento,ano,mes)
+        dplyr::select(uf,municipio,ano,mes,categoria,evento,arma,faixa_etaria,feminino,
+                      masculino,nao_informado,total,total_peso,total_vitimas) |>
+        dplyr::arrange(uf,municipio,ano,mes,categoria,evento)
 
       message("Download completed.")
 
@@ -54,17 +84,28 @@ get_gov_data <- function(state = 'all', typology = 'all', year = 'all',
 
   # Function arguments ---------------------------------------------------------
 
-    # argument state
-    if (!"all" %in% state) {
-      df <- df |>
-        dplyr::filter(uf %in% state)
-    }
+  # argument state & city
+  if (state != "all" & city != "all" ) {
+    df <- df |>
+      dplyr::filter(uf %in% state) |>
+      dplyr::filter(municipio %in% city)
+  }
 
-    # argument typology
-    if (!"all" %in% typology) {
-      df <- df |>
-        dplyr::filter(evento %in% typology)
-    }
+  if (state != "all" & city == "all" ){
+    df <- df |>
+      dplyr::filter(uf %in% state)
+  }
+
+  if (state == "all" & city != "all") {
+    message("To use the cities filter, it's necessary to select a state.")
+  }
+
+  # argument category & typology
+  if (category != "all" & typology != "all") {
+    df <- df |>
+      dplyr::filter(categoria %in% category)
+    dplyr::filter(evento %in% typology)
+  }
 
     # argument year
     if (!"all" %in% year) {
