@@ -24,7 +24,7 @@ Roubo de carga (Cargo Theft), Roubo de veículo (Vehicle Robbery), Roubo seguido
 and Tentativa de homicídio (Attempted Homicide).
 }
 \examples{
-dados <- get_sinesp-vde_data()
+dados <- get_sinespvde_data()
 
 
 }

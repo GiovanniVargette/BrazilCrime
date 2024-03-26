@@ -8,7 +8,7 @@
 #' and Tentativa de homicídio (Attempted Homicide).
 #'
 #'@examples
-#' dados <- get_sinesp-vde_data()
+#' dados <- get_sinespvde_data()
 #'
 #'
 #' @export
@@ -16,17 +16,19 @@
 get_sinespvde_data <- function(state = 'all', city = "all", category = "all", typology = 'all',
                                 year = 'all', granularity = 'month', pivot = F, geom = F) {
 
-  options(scipen = 999, timeout = 1500)
+  options(scipen = 999, timeout = 10000)
 
-  link19 <- "https://www.gov.br/mj/pt-br/assuntos/sua-seguranca/seguranca-publica/estatistica/download/dnsp-base-de-dados/bancovde-2019_.xlsx"
+  link19 <- "https://www.gov.br/mj/pt-br/assuntos/sua-seguranca/seguranca-publica/estatistica/download/dnsp-base-de-dados/banco-vde-2019.xlsx"
+
+  link20 <- "https://www.gov.br/mj/pt-br/assuntos/sua-seguranca/seguranca-publica/estatistica/download/dnsp-base-de-dados/banco-vde-2020.xlsx"
 
   #ufs <- read.csv("BrazilCrime/data-raw/ufs.csv")
 
-  suppressWarnings({
+  #suppressWarnings({
     # download and initial data treatment
     tryCatch({
 
-      df <- openxlsx::read.xlsx(link19) |>
+      df19 <- openxlsx::read.xlsx(link19) |>
         dplyr::mutate(mes = dplyr::case_when(
           data_referencia == 43466 ~ 1,
           data_referencia == 43497 ~ 2,
@@ -39,7 +41,26 @@ get_sinespvde_data <- function(state = 'all', city = "all", category = "all", ty
           data_referencia == 43709 ~ 9,
           data_referencia == 43739 ~ 10,
           data_referencia == 43770 ~ 11,
-          data_referencia == 43800 ~ 12)) |>
+          data_referencia == 43800 ~ 12))|>
+        dplyr::mutate(ano=2019)
+
+      df20 <- openxlsx::read.xlsx(link20) |>
+        dplyr::mutate(mes = dplyr::case_when(
+          data_referencia == 43831 ~ 1,
+          data_referencia == 43862 ~ 2,
+          data_referencia == 43891 ~ 3,
+          data_referencia == 43922 ~ 4,
+          data_referencia == 43952 ~ 5,
+          data_referencia == 43983 ~ 6,
+          data_referencia == 44013 ~ 7,
+          data_referencia == 44044 ~ 8,
+          data_referencia == 44075 ~ 9,
+          data_referencia == 44105 ~ 10,
+          data_referencia == 44136 ~ 11,
+          data_referencia == 44166 ~ 12))|>
+        dplyr::mutate(ano=2020)
+
+      df <- dplyr::bind_rows(df19,df20) |>
         dplyr::mutate(categoria = dplyr::case_when(
           evento == "Apreensão de Cocaína" ~ "drogas",
           evento == "Apreensão de Maconha" ~ "drogas",
@@ -69,8 +90,7 @@ get_sinespvde_data <- function(state = 'all', city = "all", category = "all", ty
           evento == "Combate a incêndios" ~ "bombeiros",
           evento == "Emissão de Alvarás de licença" ~ "bombeiros",
           evento == "Realização de vistorias" ~ "bombeiros")) |>
-        dplyr::mutate(ano = 2019) |>
-        dplyr::select(uf,municipio,ano,mes,categoria,evento,arma,faixa_etaria,feminino,
+        dplyr::select(uf,municipio,ano,mes,categoria,evento,agente,arma,faixa_etaria,feminino,
                       masculino,nao_informado,total,total_peso,total_vitimas) |>
         dplyr::arrange(uf,municipio,ano,mes,categoria,evento)
 
@@ -80,32 +100,158 @@ get_sinespvde_data <- function(state = 'all', city = "all", category = "all", ty
       message("Error downloading file. Try again later.")
 
     })
-  })
+#  })
 
   # Function arguments ---------------------------------------------------------
 
   # argument state & city
-  if (state != "all" & city != "all" ) {
-    df <- df |>
-      dplyr::filter(uf %in% state) |>
-      dplyr::filter(municipio %in% city)
-  }
+  ifelse(state == "all" & city == "all",
+         df <- df,
+         ifelse(state != "all" & city == "all",
+                df <- df |>
+                  dplyr::filter(uf %in% state),
+                ifelse(state != "all" & city != "all",
+                       df <- df |>
+                         dplyr::filter(uf %in% state) |>
+                         dplyr::filter(municipio %in% city),
+                       stop("To use the cities filter, it's necessary to select a state.")
+                )))
 
-  if (state != "all" & city == "all" ){
-    df <- df |>
-      dplyr::filter(uf %in% state)
-  }
+  #argument category & typology
+  ifelse(category=="all" & typology == "all",
+         df <- df,
+         ifelse(category == "vitimas" & typology == "all",
+          df <- df |>
+            dplyr::select(uf,municipio,ano,mes,categoria,evento,feminino,masculino,
+                          nao_informado,total_vitimas) |>
+            dplyr::filter(categoria %in% category),
+          ifelse(category == "vitimas" & typology != "all" & typology == "Feminicídio" | typology == "Homicídio doloso" |
+                    typology == "Lesão corporal seguida de morte" | typology == "Morte no trânsito ou em decorrência dele (exceto homicídio doloso)" |
+                    typology == "Mortes a esclarecer (sem indício de crime)" | typology == "Roubo seguido de morte (latrocínio)" |
+                    typology == "Suicídio" | typology == "Tentativa de homicídio" | typology == "Estupro" |
+                    typology == "Morte por intervenção de Agente do Estado",
+                  df <- df |>
+                    dplyr::select(uf,municipio,ano,mes,categoria,evento,feminino,masculino,
+                                  nao_informado,total_vitimas) |>
+                    dplyr::filter(categoria %in% category) |>
+                    dplyr::filter(evento %in% typology),
+                 stop("A tipologia introduzida não corresponde à categoria fornecida")
 
-  if (state == "all" & city != "all") {
-    message("To use the cities filter, it's necessary to select a state.")
-  }
+         )))
 
-  # argument category & typology
-  if (category != "all" & typology != "all") {
-    df <- df |>
-      dplyr::filter(categoria %in% category)
-    dplyr::filter(evento %in% typology)
-  }
+  ifelse(category=="all" & typology == "all",
+         df <- df,
+         ifelse(category == "drogas" & typology == "all",
+                df <- df |>
+                  dplyr::select(uf,municipio,ano,mes,categoria,evento,total,total_peso) |>
+                  dplyr::filter(categoria %in% category),
+                ifelse(category == "drogas" & typology != "all" & typology == "Apreensão de Cocaína" |
+                         typology == "Apreensão de Maconha" | typology == "Tráfico de drogas",                       df <- df |>
+                         dplyr::select(uf,municipio,ano,mes,categoria,evento,total,total_peso) |>
+                         dplyr::filter(categoria %in% category) |>
+                         dplyr::filter(evento %in% typology),
+                       stop("A tipologia introduzida não corresponde à categoria fornecida"
+
+                       ))))
+
+  ifelse(category=="all" & typology == "all",
+         df <- df,
+         ifelse(category == "arma de fogo" & typology == "all",
+                df <- df |>
+                  dplyr::select(uf,municipio,ano,mes,categoria,evento,arma,total) |>
+                  dplyr::filter(categoria %in% category),
+                ifelse(category == "arma de fogo" & typology != "all" & typology == "Arma de fogo apreendida",                       df <- df |>
+                         dplyr::select(uf,municipio,ano,mes,categoria,evento,arma,total) |>
+                         dplyr::filter(categoria %in% category) |>
+                         dplyr::filter(evento %in% typology),
+                       stop("A tipologia introduzida não corresponde à categoria fornecida"
+
+                       ))))
+
+  ifelse(category=="all" & typology == "all",
+         df <- df,
+         ifelse(category == "ocorrencia" & typology == "all",
+                df <- df |>
+                  dplyr::select(uf,municipio,ano,mes,categoria,evento,total) |>
+                  dplyr::filter(categoria %in% category),
+                ifelse(category == "ocorrencia" & typology != "all" & typology == "Furto de veículo" |
+                         typology == "Roubo a instituição financeira" | typology == "Roubo de carga" |
+                         typology == "Roubo de veículo",
+                       df <- df |>
+                         dplyr::select(uf,municipio,ano,mes,categoria,evento,total) |>
+                         dplyr::filter(categoria %in% category) |>
+                         dplyr::filter(evento %in% typology),
+                       stop("A tipologia introduzida não corresponde à categoria fornecida"
+
+                      ))))
+
+  ifelse(category=="all" & typology == "all",
+         df <- df,
+         ifelse(category == "desaparecidos/localizados" & typology == "all",
+                df <- df |>
+                  dplyr::select(uf,municipio,ano,mes,categoria,evento,faixa_etaria,feminino,
+                                masculino,nao_informado,total_vitimas) |>
+                  dplyr::filter(categoria %in% category),
+                ifelse(category == "desaparecidos/localizados" & typology != "all" & typology == "Pessoa Desaparecida" |
+                         typology == "Pessoa Localizada",
+                       df <- df |>
+                         dplyr::select(uf,municipio,ano,mes,categoria,evento,faixa_etaria,feminino,
+                                       masculino,nao_informado,total_vitimas) |>
+                         dplyr::filter(categoria %in% category) |>
+                         dplyr::filter(evento %in% typology),
+                       stop("A tipologia introduzida não corresponde à categoria fornecida"
+
+                       ))))
+
+  ifelse(category=="all" & typology == "all",
+         df <- df,
+         ifelse(category == "mandado de prisao cumprido" & typology == "all",
+                df <- df |>
+                  dplyr::select(uf,municipio,ano,mes,categoria,evento,total) |>
+                  dplyr::filter(categoria %in% category),
+                ifelse(category == "mandado de prisao cumprido" & typology != "all" & typology == "Mandado de prisão cumprido",
+                       df <- df |>
+                         dplyr::select(uf,municipio,ano,mes,categoria,evento,total) |>
+                         dplyr::filter(categoria %in% category) |>
+                         dplyr::filter(evento %in% typology),
+                       stop("A tipologia introduzida não corresponde à categoria fornecida"
+
+                       ))))
+
+  ifelse(category=="all" & typology == "all",
+         df <- df,
+         ifelse(category == "profissionais de seguranca" & typology == "all",
+                df <- df |>
+                  dplyr::select(uf,municipio,ano,mes,categoria,evento,agente,feminino,
+                                masculino,nao_informado,total_vitimas) |>
+                  dplyr::filter(categoria %in% category),
+                ifelse(category == "profissionais de seguranca" & typology != "all" & typology == "Morte de Agente do Estado" |
+                         typology == "Suicídio de Agente do Estado",
+                       df <- df |>
+                         dplyr::select(uf,municipio,ano,mes,categoria,evento,agente,feminino,
+                                       masculino,nao_informado,total_vitimas) |>
+                         dplyr::filter(categoria %in% category) |>
+                         dplyr::filter(evento %in% typology),
+                      stop("A tipologia introduzida não corresponde à categoria fornecida"
+
+                       ))))
+
+  ifelse(category=="all" & typology == "all",
+         df <- df,
+         ifelse(category == "bombeiros" & typology == "all",
+                df <- df |>
+                  dplyr::select(uf,municipio,ano,mes,categoria,evento,total) |>
+                  dplyr::filter(categoria %in% category),
+                ifelse(category == "bombeiros" & typology != "all" & typology == "Atendimento pré-hospitalar" |
+                         typology == "Busca e salvamento" | typology == "Combate a incêndios" |
+                         typology == "Emissão de Alvarás de licença" | typology == "Realização de vistorias",
+                       df <- df |>
+                         dplyr::select(uf,municipio,ano,mes,categoria,evento,total) |>
+                         dplyr::filter(categoria %in% category) |>
+                         dplyr::filter(evento %in% typology),
+                       stop("A tipologia introduzida não corresponde à categoria fornecida"
+
+                       ))))
 
     # argument year
     if (!"all" %in% year) {
