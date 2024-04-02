@@ -16,15 +16,19 @@
 get_sinespvde_data <- function(state = 'all', city = "all", category = "all", typology = 'all',
                                 year = 'all', granularity = 'month', pivot = F, geom = F) {
 
-  options(scipen = 999, timeout = 999999999)
+  options(scipen = 999, timeout = 1500)
 
-  link19 <- "https://www.gov.br/mj/pt-br/assuntos/sua-seguranca/seguranca-publica/estatistica/download/dnsp-base-de-dados/banco-vde-2019.xlsx"
+  link19 <- "https://www.gov.br/mj/pt-br/assuntos/sua-seguranca/seguranca-publica/estatistica/download/dnsp-base-de-dados/banco-vde-2019.xlsx/"
 
-  link20 <- "https://www.gov.br/mj/pt-br/assuntos/sua-seguranca/seguranca-publica/estatistica/download/dnsp-base-de-dados/banco-vde-2020.xlsx"
+  link20 <- "https://www.gov.br/mj/pt-br/assuntos/sua-seguranca/seguranca-publica/estatistica/download/dnsp-base-de-dados/banco-vde-2020.xlsx/"
 
-  link21 <- "https://www.gov.br/mj/pt-br/assuntos/sua-seguranca/seguranca-publica/estatistica/download/dnsp-base-de-dados/banco-vde-2021.xlsx"
+  link21 <- "https://www.gov.br/mj/pt-br/assuntos/sua-seguranca/seguranca-publica/estatistica/download/dnsp-base-de-dados/banco-vde-2021.xlsx/"
 
+  link22 <- "https://www.gov.br/mj/pt-br/assuntos/sua-seguranca/seguranca-publica/estatistica/download/dnsp-base-de-dados/banco-vde-2022.xlsx/"
 
+  link23 <- "https://www.gov.br/mj/pt-br/assuntos/sua-seguranca/seguranca-publica/estatistica/download/dnsp-base-de-dados/banco-vde-2023.xlsx/"
+
+  link24 <- "https://www.gov.br/mj/pt-br/assuntos/sua-seguranca/seguranca-publica/estatistica/download/dnsp-base-de-dados/banco-vde-2024.xlsx/"
 
 
 
@@ -82,7 +86,45 @@ get_sinespvde_data <- function(state = 'all', city = "all", category = "all", ty
           data_referencia == 44531 ~ 12))|>
         dplyr::mutate(ano=2021)
 
-      df <- dplyr::bind_rows(df19,df20,df21) |>
+      df22 <- openxlsx::read.xlsx(link22)|>
+        dplyr::mutate(mes = dplyr::case_when(
+          data_referencia == 44562 ~ 1,
+          data_referencia == 44593 ~ 2,
+          data_referencia == 44621 ~ 3,
+          data_referencia == 44652 ~ 4,
+          data_referencia == 44682 ~ 5,
+          data_referencia == 44713 ~ 6,
+          data_referencia == 44743 ~ 7,
+          data_referencia == 44774 ~ 8,
+          data_referencia == 44805 ~ 9,
+          data_referencia == 44835 ~ 10,
+          data_referencia == 44866 ~ 11,
+          data_referencia == 44896 ~ 12))|>
+        dplyr::mutate(ano=2022)
+
+      df23 <- openxlsx::read.xlsx(link23)|>
+        dplyr::mutate(mes = dplyr::case_when(
+          data_referencia == 44927 ~ 1,
+          data_referencia == 44958 ~ 2,
+          data_referencia == 44986 ~ 3,
+          data_referencia == 45017 ~ 4,
+          data_referencia == 45047 ~ 5,
+          data_referencia == 45078 ~ 6,
+          data_referencia == 45108 ~ 7,
+          data_referencia == 45139 ~ 8,
+          data_referencia == 45170 ~ 9,
+          data_referencia == 45200 ~ 10,
+          data_referencia == 45231 ~ 11,
+          data_referencia == 45261 ~ 12))|>
+        dplyr::mutate(ano=2023)
+
+      df24 <- openxlsx::read.xlsx(link24)|>
+        dplyr::mutate(mes = dplyr::case_when(
+          data_referencia == 45292 ~ 1,
+          data_referencia == 45323 ~ 2))|>
+        dplyr::mutate(ano=2024)
+
+      df <- dplyr::bind_rows(df19,df20,df21,df22,df23,df24) |>
         dplyr::mutate(categoria = dplyr::case_when(
           evento == "Apreensão de Cocaína" ~ "drogas",
           evento == "Apreensão de Maconha" ~ "drogas",
