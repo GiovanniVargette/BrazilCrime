@@ -11,6 +11,19 @@ pop <- readxl::read_xlsx("C:/Users/giovannivargette/BrazilCrime/data-raw/pop_pro
   dplyr::mutate(mes = gl(12,1,length=132))|>
   dplyr::select(!data)
 
-
 usethis::use_data(pop, compress = "xz", overwrite = TRUE)
+
+pop_anual <- readxl::read_xlsx("C:/Users/giovannivargette/BrazilCrime/data-raw/pop_projetada_anual.xlsx")|>
+  dplyr::select(-cod)|>
+  dplyr::filter(uf!="Brasil")|>
+  dplyr::filter(ano>2018 & ano <2030)|>
+  dplyr::mutate(uf = dplyr::case_when(
+    uf=="Rondônia" ~ "RO",uf=="Acre"~"AC",uf=="Amazonas"~"AM",uf=="Roraima"~"RR",uf=="Pará"~"PA",uf=="Amapá"~"AP",
+    uf=="Tocantins"~"TO",uf=="Maranhão"~"MA",uf=="Piauí"~"PI",uf=="Ceará"~"CE",uf=="Rio Grande do Norte"~"RN",uf=="Paraíba"~"PB",
+    uf=="Pernambuco"~"PE",uf=="Alagoas"~"AL",uf=="Sergipe"~"SE",uf=="Bahia"~"BA",uf=="Minas Gerais"~"MG",uf=="Espírito Santo"~"ES",
+    uf=="Rio de Janeiro"~"RJ",uf=="São Paulo"~"SP",uf=='Paraná'~'PR',uf=='Santa Catarina'~"SC",uf=='Rio Grande do Sul'~'RS',
+    uf=="Mato Grosso do Sul"~'MS',uf=="Mato Grosso"~'MT',uf=="Goiás"~"GO",uf=="Distrito Federal"~"DF"))|>
+  dplyr::rename(populacao_anual=populacao)
+
+usethis::use_data(pop_anual, compress = "xz", overwrite = TRUE)
 
