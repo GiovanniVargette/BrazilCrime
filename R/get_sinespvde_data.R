@@ -13,62 +13,50 @@
 #'
 #' @export
 
-get_sinespvde_data <- function(state = 'all', aggregate = F, city = "all", category = "all", typology = 'all',
-                                year = 'all', granularity = 'month', pivot = F, geom = F, relative_values = F) {
+get_sinespvde_data <- function(state = 'all', city = "all", category = "all", typology = 'all', year = 'all',
+                               granularity = 'month', pivot = F, geom = F, relative_values = F) {
 
   load("data/df.rda")
 
   # Function arguments ---------------------------------------------------------
 
-  # argument state & city
-    if(state == "all" & aggregate == F & city == "all"){
-      df <- df
-      }
-
-    if(state == "all" & aggregate == T & city == F){
-      df <- df|>
-        dplyr::select(-municipio)|>
-        dplyr::group_by(uf,ano,mes,categoria,evento,agente,arma,faixa_etaria)|>
-        dplyr::summarize(feminino=sum(feminino,na.rm = T),
-                         masculino=sum(masculino,na.rm = T),
-                         nao_informado=sum(nao_informado,na.rm = T),
-                         total = sum(total,na.rm = T),
-                         total_peso = sum(total_peso,na.rm = T),
-                         total_vitimas=sum(total_vitimas,na.rm = T))
-    }
-
-    if(state != "all" & aggregate == T){
-      df <- df|>
-        dplyr::select(-municipio)|>
-        dplyr::filter({uf} %in% {{state}})|>
-        dplyr::group_by(uf,ano,mes,categoria,evento,agente,arma,faixa_etaria)|>
-        dplyr::summarize(feminino=sum(feminino,na.rm = T),
-                         masculino=sum(masculino,na.rm = T),
-                         nao_informado=sum(nao_informado,na.rm = T),
-                         total = sum(total,na.rm = T),
-                         total_peso = sum(total_peso,na.rm = T),
-                         total_vitimas=sum(total_vitimas,na.rm = T))
-      if(city!="all" & city != F){
-        stop("A city only can be picked when aggregate = F")
-      }
-    }
-
-    if(state != "all" & aggregate == F){
+  #argument state & city-----------------
+    if(state == "all"){
       ifelse({{city}} == "all",
-             df <- df |>
-               dplyr::filter({uf} %in% {{state}}),
-             ifelse(city != "all",
-                    df <- df |>
-                      dplyr::filter({uf} %in% {{state}}) |>
-                      dplyr::filter({municipio} %in% {{city}}),
-                    stop("To use the cities filter, it's necessary to select a state.")))}
+      df <- df,
+      ifelse(city == F,
+             df <- df|>
+               dplyr::select(-municipio)|>
+               dplyr::group_by(uf,ano,mes,categoria,evento,agente,arma,faixa_etaria)|>
+               dplyr::summarize(feminino=sum(feminino,na.rm = T),
+                                masculino=sum(masculino,na.rm = T),
+                                nao_informado=sum(nao_informado,na.rm = T),
+                                total = sum(total,na.rm = T),
+                                total_peso = sum(total_peso,na.rm = T),
+                                total_vitimas=sum(total_vitimas,na.rm = T)),
+             stop("To select a city, is necessary fist select a state")))
+    }
 
-  #argument category & typology
+  if(state != "all"){
+    ifelse({{city}} == "all",
+           df <- df |>
+             dplyr::filter({uf} %in% {{state}}),
+           ifelse(city != "all" & city != F,
+                  df <- df |>
+                    dplyr::filter({uf} %in% {{state}}) |>
+                    dplyr::filter({municipio} %in% {{city}}),
+                  ifelse(city == F,
+                         df <- df |>
+                           dplyr::filter({uf} %in% {{state}}),
+             stop("To use the cities filter, it's necessary to select a state."))))
+  }
+
+  #argument category & typology-----------------------
   if(category == "all"){
     df <- df
   }
 
-  if(category == "vitimas" & aggregate==F){
+  if(category == "vitimas" & city!=F){
     ifelse(typology=="all",
            df <- df |>
              dplyr::select(uf,municipio,ano,mes,categoria,evento,feminino,masculino,
@@ -88,7 +76,7 @@ get_sinespvde_data <- function(state = 'all', aggregate = F, city = "all", categ
               stop("A tipologia introduzida não corresponde à categoria fornecida")))
     }
 
-    if(category == "vitimas" & aggregate==T){
+    if(category == "vitimas" & city==F){
       ifelse(typology=="all",
              df <- df |>
                dplyr::group_by(uf,ano,mes,categoria,evento,feminino,masculino,
@@ -116,7 +104,7 @@ get_sinespvde_data <- function(state = 'all', aggregate = F, city = "all", categ
                     stop("A tipologia introduzida não corresponde à categoria fornecida")))
     }
 
-  if(category == "drogas" & aggregate == F){
+  if(category == "drogas" & city!=F){
     ifelse(typology=="all",
            df <- df |>
              dplyr::select(uf,municipio,ano,mes,categoria,evento,total,total_peso) |>
@@ -131,7 +119,7 @@ get_sinespvde_data <- function(state = 'all', aggregate = F, city = "all", categ
                 stop("A tipologia introduzida não corresponde à categoria fornecida")))
   }
 
-  if(category == "drogas" & aggregate == T){
+  if(category == "drogas" & city==F){
     ifelse(typology=="all",
            df <- df |>
              dplyr::group_by(uf,ano,mes,categoria,evento,total,total_peso) |>
@@ -149,7 +137,7 @@ get_sinespvde_data <- function(state = 'all', aggregate = F, city = "all", categ
                   stop("A tipologia introduzida não corresponde à categoria fornecida")))
   }
 
-  if(category == "arma de fogo" & aggregate == F){
+  if(category == "arma de fogo" & city!=F){
     ifelse(typology=="all",
            df <- df |>
              dplyr::select(uf,municipio,ano,mes,categoria,evento,arma,total) |>
@@ -162,7 +150,7 @@ get_sinespvde_data <- function(state = 'all', aggregate = F, city = "all", categ
                   stop("A tipologia introduzida não corresponde à categoria fornecida")))
   }
 
-  if(category == "arma de fogo" & aggregate == T){
+  if(category == "arma de fogo" & city==F){
     ifelse(typology=="all",
            df <- df |>
              dplyr::group_by(uf,ano,mes,categoria,evento,arma,total) |>
@@ -177,7 +165,7 @@ get_sinespvde_data <- function(state = 'all', aggregate = F, city = "all", categ
                   stop("A tipologia introduzida não corresponde à categoria fornecida")))
   }
 
-  if(category == "ocorrencias" & aggregate == F){
+  if(category == "ocorrencias" & city!=F){
     ifelse(typology=="all",
            df <- df |>
              dplyr::select(uf,municipio,ano,mes,categoria,evento,total) |>
@@ -191,7 +179,7 @@ get_sinespvde_data <- function(state = 'all', aggregate = F, city = "all", categ
                   stop("A tipologia introduzida não corresponde à categoria fornecida")))
   }
 
-  if(category == "ocorrencias" & aggregate == T){
+  if(category == "ocorrencias" & city==F){
     ifelse(typology=="all",
            df <- df |>
              dplyr::group_by(uf,ano,mes,categoria,evento,total) |>
@@ -207,7 +195,7 @@ get_sinespvde_data <- function(state = 'all', aggregate = F, city = "all", categ
                   stop("A tipologia introduzida não corresponde à categoria fornecida")))
   }
 
-  if(category == "desaparecidos/localizados" & aggregate == F){
+  if(category == "desaparecidos/localizados" & city!=F){
     ifelse(typology=="all",
            df <- df |>
              dplyr::select(uf,municipio,ano,mes,categoria,evento,faixa_etaria,feminino,
@@ -222,7 +210,7 @@ get_sinespvde_data <- function(state = 'all', aggregate = F, city = "all", categ
                   stop("A tipologia introduzida não corresponde à categoria fornecida")))
   }
 
-  if(category == "desaparecidos/localizados" & aggregate == T){
+  if(category == "desaparecidos/localizados" & city==F){
     ifelse(typology=="all",
            df <- df |>
              dplyr::group_by(uf,ano,mes,categoria,evento,faixa_etaria,feminino,
@@ -239,7 +227,7 @@ get_sinespvde_data <- function(state = 'all', aggregate = F, city = "all", categ
                   stop("A tipologia introduzida não corresponde à categoria fornecida")))
   }
 
-  if(category == "mandado de prisao cumprido" & aggregate == F){
+  if(category == "mandado de prisao cumprido" & city!=F){
     ifelse(typology=="all",
            df <- df |>
              dplyr::select(uf,municipio,ano,mes,categoria,evento,total) |>
@@ -252,7 +240,7 @@ get_sinespvde_data <- function(state = 'all', aggregate = F, city = "all", categ
                   stop("A tipologia introduzida não corresponde à categoria fornecida")))
   }
 
-  if(category == "mandado de prisao cumprido" & aggregate == T){
+  if(category == "mandado de prisao cumprido" & city==F){
     ifelse(typology=="all",
            df <- df |>
              dplyr::group_by(uf,ano,mes,categoria,evento,total) |>
@@ -267,7 +255,7 @@ get_sinespvde_data <- function(state = 'all', aggregate = F, city = "all", categ
                   stop("A tipologia introduzida não corresponde à categoria fornecida")))
   }
 
-  if(category == "profissionais de seguranca" & aggregate == F){
+  if(category == "profissionais de seguranca" & city!=F){
     ifelse(typology=="all",
            df <- df |>
              dplyr::select(uf,municipio,ano,mes,categoria,evento,agente,feminino,
@@ -282,7 +270,7 @@ get_sinespvde_data <- function(state = 'all', aggregate = F, city = "all", categ
                   stop("A tipologia introduzida não corresponde à categoria fornecida")))
   }
 
-  if(category == "profissionais de seguranca" & aggregate == T){
+  if(category == "profissionais de seguranca" & city==F){
     ifelse(typology=="all",
            df <- df |>
              dplyr::group_by(uf,ano,mes,categoria,evento,agente,feminino,
@@ -299,7 +287,7 @@ get_sinespvde_data <- function(state = 'all', aggregate = F, city = "all", categ
                   stop("A tipologia introduzida não corresponde à categoria fornecida")))
   }
 
-  if(category == "bombeiros" & aggregate == F){
+  if(category == "bombeiros" & city!=F){
     ifelse(typology=="all",
            df <- df |>
              dplyr::select(uf,municipio,ano,mes,categoria,evento,total) |>
@@ -314,7 +302,7 @@ get_sinespvde_data <- function(state = 'all', aggregate = F, city = "all", categ
                   stop("A tipologia introduzida não corresponde à categoria fornecida")))
   }
 
-  if(category == "bombeiros" & aggregate == T){
+  if(category == "bombeiros" & city==F){
     ifelse(typology=="all",
            df <- df |>
              dplyr::group_by(uf,ano,mes,categoria,evento,total) |>
@@ -339,13 +327,13 @@ get_sinespvde_data <- function(state = 'all', aggregate = F, city = "all", categ
 
     # argument granularity--------------------------------------
     if (granularity == 'year' & category == "all") {
-      stop("Para utilizar a granularidade anual, selecione previamente uma categoria")
+      stop("To set granularity = 'year', please select a category fisrt")
     }
 
-    if (granularity=="year" & category == "vitimas" & relative_values==F){
+    if (granularity=="year" & category == "vitimas" & relative_values==F & pivot==F){
       ifelse(typology=="all",
              df <- df |>
-               dplyr::group_by(uf,categoria,evento,ano)|>
+               dplyr::group_by(uf,municipio,categoria,evento,ano)|>
                dplyr::filter({categoria} %in% {{category}})|>
                dplyr::summarize(total_fem = (sum(feminino, na.rm = T)),
                                 total_masc = (sum(masculino, na.rm = T)),
@@ -359,7 +347,7 @@ get_sinespvde_data <- function(state = 'all', aggregate = F, city = "all", categ
                       typology == "Suicídio" | typology == "Tentativa de homicídio" | typology == "Estupro" |
                       typology == "Morte por intervenção de Agente do Estado",
                     df <- df |>
-                      dplyr::group_by(uf,categoria,{{typology}},ano) |>
+                      dplyr::group_by(uf,categoria,{{typology}},ano,municipio) |>
                       dplyr::summarize(total_fem = (sum(feminino, na.rm = T)),
                                        total_masc = (sum(masculino, na.rm = T)),
                                        total_n_inf = (sum(nao_informado, na.rm = T)),
@@ -368,10 +356,10 @@ get_sinespvde_data <- function(state = 'all', aggregate = F, city = "all", categ
                     stop("A tipologia introduzida não corresponde à categoria fornecida")))
     }
 
-    if (granularity=="year" & category == "ocorrencias" & relative_values==F){
+    if (granularity=="year" & category == "ocorrencias" & relative_values==F & pivot==F){
       ifelse(typology=="all",
              df <- df |>
-               dplyr::group_by(uf,evento,ano)|>
+               dplyr::group_by(uf,evento,ano,municipio)|>
                dplyr::summarize(total = sum(total, na.rm = T)),
              ifelse(typology == "Furto de veículo" | typology == "Roubo a instituição financeira" |
                       typology == "Roubo de carga" | typology == "Roubo de veículo",
@@ -381,44 +369,44 @@ get_sinespvde_data <- function(state = 'all', aggregate = F, city = "all", categ
                     stop("A tipologia introduzida não corresponde à categoria fornecida")))
     }
 
-    if (granularity=="year" & category == "drogas" & relative_values==F){
+    if (granularity=="year" & category == "drogas" & relative_values==F & pivot==F){
       ifelse(typology=="all",
              df <- df |>
-               dplyr::group_by(uf,evento,ano)|>
+               dplyr::group_by(uf,evento,ano,municipio)|>
                dplyr::summarize(total_casos = sum(total),
                                 total_peso = sum(total_peso)),
              ifelse(typology == "Apreensão de Cocaína" | typology == "Apreensão de Maconha" |
                     typology == "Tráfico de drogas",
                     df <- df |>
-                      dplyr::group_by(uf,{{typology}},ano) |>
+                      dplyr::group_by(uf,{{typology}},ano,municipio) |>
                       dplyr::summarize(total_casos = sum(total),
                                        total_peso = sum(total_peso)),
                     stop("A tipologia introduzida não corresponde à categoria fornecida")))
     }
 
-    if (granularity=="year" & category == "arma de fogo" & relative_values==F){
+    if (granularity=="year" & category == "arma de fogo" & relative_values==F & pivot==F){
       ifelse(typology=="all",
              df <- df |>
-               dplyr::group_by(uf,evento,ano,arma)|>
+               dplyr::group_by(uf,evento,ano,arma,municipio)|>
                dplyr::summarize(total = sum(total, na.rm = T)),
              ifelse(typology == "Arma de Fogo Apreendida",
                     df <- df |>
-                      dplyr::group_by(uf,evento,ano,arma) |>
+                      dplyr::group_by(uf,evento,ano,arma,municipio) |>
                       dplyr::summarize(total= sum(total, na.rm = T)),
                     stop("A tipologia introduzida não corresponde à categoria fornecida")))
     }
 
-    if (granularity=="year" & category == "desaparecidos/localizados" & relative_values==F){
+    if (granularity=="year" & category == "desaparecidos/localizados" & relative_values==F & pivot==F){
       ifelse(typology=="all",
              df <- df |>
-               dplyr::group_by(uf,evento,ano,faixa_etaria)|>
+               dplyr::group_by(uf,evento,ano,faixa_etaria,municipio)|>
                dplyr::summarize(total_fem = (sum(feminino, na.rm = T)),
                                 total_masc = (sum(masculino, na.rm = T)),
                                 total_n_inf = (sum(nao_informado, na.rm = T)),
                                 total = (sum(total_vitimas, na.rm = T))),
              ifelse(typology == "Pessoa Desaparecida" | typology == "Pessoa Localizada",
                     df <- df |>
-                      dplyr::group_by(uf,{{typology}},ano,faixa_etaria) |>
+                      dplyr::group_by(uf,{{typology}},ano,faixa_etaria,municipio) |>
                       dplyr::summarize(total_fem = (sum(feminino, na.rm = T)),
                                        total_masc = (sum(masculino, na.rm = T)),
                                        total_n_inf = (sum(nao_informado, na.rm = T)),
@@ -426,29 +414,29 @@ get_sinespvde_data <- function(state = 'all', aggregate = F, city = "all", categ
                     stop("A tipologia introduzida não corresponde à categoria fornecida")))
     }
 
-    if (granularity=="year" & category == "mandado de prisao cumprido" & relative_values==F){
+    if (granularity=="year" & category == "mandado de prisao cumprido" & relative_values==F & pivot==F){
       ifelse(typology=="all",
              df <- df |>
-               dplyr::group_by(uf,evento,ano,)|>
+               dplyr::group_by(uf,evento,ano,municipio)|>
                dplyr::summarize(total=(sum(total, na.rm = T))),
              ifelse(typology == "Mandado de prisão cumprido",
                     df <- df |>
-                      dplyr::group_by(uf,evento,ano,)|>
+                      dplyr::group_by(uf,evento,ano,municipio)|>
                       dplyr::summarize(total=(sum(total, na.rm = T))),
                     stop("A tipologia introduzida não corresponde à categoria fornecida")))
     }
 
-    if (granularity=="year" & category == "profissionais de seguranca" & relative_values==F){
+    if (granularity=="year" & category == "profissionais de seguranca" & relative_values==F & pivot==F){
       ifelse(typology=="all",
              df <- df |>
-               dplyr::group_by(uf,evento,ano,agente)|>
+               dplyr::group_by(uf,evento,ano,agente,municipio)|>
                dplyr::summarize(total_fem = (sum(feminino, na.rm = T)),
                                 total_masc = (sum(masculino, na.rm = T)),
                                 total_n_inf = (sum(nao_informado, na.rm = T)),
                                 total = (sum(total_vitimas, na.rm = T))),
              ifelse(typology == "Morte de Agente do Estado" | typology == "Suicídio de Agente do Estado",
                     df <- df |>
-                      dplyr::group_by(uf,{{typology}},ano,agente)|>
+                      dplyr::group_by(uf,{{typology}},ano,agente,municipio)|>
                       dplyr::summarize(total_fem = (sum(feminino, na.rm = T)),
                                        total_masc = (sum(masculino, na.rm = T)),
                                        total_n_inf = (sum(nao_informado, na.rm = T)),
@@ -456,28 +444,28 @@ get_sinespvde_data <- function(state = 'all', aggregate = F, city = "all", categ
                     stop("A tipologia introduzida não corresponde à categoria fornecida")))
     }
 
-    if (granularity=="year" & category == "bombeiros" & relative_values==F){
+    if (granularity=="year" & category == "bombeiros" & relative_values==F & pivot==F){
       ifelse(typology=="all",
              df <- df |>
-               dplyr::group_by(uf,evento,ano)|>
+               dplyr::group_by(uf,evento,ano,municipio)|>
                dplyr::summarize(total=sum(total,na.rm = T)),
              ifelse(typology == "Atendimento pré-hospitalar" | typology == "Busca e salvamento" |
                       typology == "Combate a incêndios" | typology == "Emissão de Alvarás de licença" |
                       typology == "Realização de vistorias",
                     df <- df |>
-                      dplyr::group_by(uf,{{typology}},ano,agente)|>
+                      dplyr::group_by(uf,{{typology}},ano,agente,municipio)|>
                       dplyr::summarize(total=sum(total,na.rm = T)),
                     stop("A tipologia introduzida não corresponde à categoria fornecida")))
     }
 
 
-  #Argument Relative_Values & granularity == "month" --------------------------------
+  #Argument Relative_Values == T & granularity == "month" --------------------------------
 
-    if (relative_values == T & granularity == 'month' & city != F) {
-      stop("A city only can be picked when aggregate = F")
+    if (relative_values == T & granularity == 'month' & city != F & pivot==F) {
+      stop("A city only can be picked when relative_values = F")
     }
 
-  if (relative_values == T & granularity == 'month' & city == F) {
+  if (relative_values == T & granularity == 'month' & city == F & pivot==F) {
 
       load("data/pop.rda")
 
@@ -491,7 +479,7 @@ get_sinespvde_data <- function(state = 'all', aggregate = F, city = "all", categ
         dplyr::select(-TOTAL)|>
         dplyr::mutate(mes=as.factor(mes))
 
-      if (category=="all" & aggregate == T){
+      if (category=="all"){
              df <- df |>
                dplyr::mutate(mes=as.factor(mes))|>
                dplyr::inner_join(pop_long, by = c("uf", "ano", "mes"))|>
@@ -503,13 +491,9 @@ get_sinespvde_data <- function(state = 'all', aggregate = F, city = "all", categ
                                 total_peso = sum(total_peso,na.rm = T),
                                 total_vitimas=sum(total_vitimas,na.rm = T))
       }
-
-      if (aggregate == F){
-        stop("To use relative_values = T, is necessary to set aggregate = T")
-      }
   }
 
-  if (relative_values == T & granularity == 'month' & city == F & category!="all" & aggregate == T){
+  if (relative_values == T & granularity == 'month' & city == F & category!="all" & pivot==F){
 
     load("data/pop.rda")
 
@@ -527,11 +511,7 @@ get_sinespvde_data <- function(state = 'all', aggregate = F, city = "all", categ
       dplyr::mutate(mes=as.factor(mes))|>
       dplyr::inner_join(pop_long, by = c("uf", "ano", "mes"))
 
-    if (aggregate == F){
-      stop("To use relative_values = T, is necessary to set aggregate = T")
-    }
-
-      if (category == "vitimas" & aggregate==T){
+      if (category == "vitimas"){
         ifelse(typology=="all",
                df <- df |>
                  dplyr::group_by(uf,ano,mes,categoria,evento,feminino,masculino,
@@ -561,7 +541,7 @@ get_sinespvde_data <- function(state = 'all', aggregate = F, city = "all", categ
                       stop("A tipologia introduzida não corresponde à categoria fornecida")))
       }
 
-      if (category == "drogas" & aggregate == T){
+      if (category == "drogas"){
         ifelse(typology=="all",
                df <- df |>
                  dplyr::group_by(uf,evento,ano,mes,populacao)|>
@@ -580,7 +560,7 @@ get_sinespvde_data <- function(state = 'all', aggregate = F, city = "all", categ
                  stop("A tipologia introduzida não corresponde à categoria fornecida")))
       }
 
-      if (category == "ocorrencias" & aggregate == T){
+      if (category == "ocorrencias"){
         ifelse(typology=="all",
                df <- df |>
                  dplyr::group_by(uf,evento,ano,mes,populacao)|>
@@ -595,7 +575,7 @@ get_sinespvde_data <- function(state = 'all', aggregate = F, city = "all", categ
                       stop("A tipologia introduzida não corresponde à categoria fornecida")))
       }
 
-      if(category == "arma de fogo" & aggregate == T){
+      if(category == "arma de fogo"){
         ifelse(typology=="all",
                df <- df |>
                  dplyr::group_by(uf,evento,ano,mes,arma,populacao)|>
@@ -609,7 +589,7 @@ get_sinespvde_data <- function(state = 'all', aggregate = F, city = "all", categ
                       stop("A tipologia introduzida não corresponde à categoria fornecida")))
       }
 
-    if(category == "desaparecidos/localizados" & aggregate == T){
+    if(category == "desaparecidos/localizados"){
       ifelse(typology=="all",
              df <- df |>
                dplyr::group_by(uf,ano,mes,categoria,evento,faixa_etaria,feminino,
@@ -628,7 +608,7 @@ get_sinespvde_data <- function(state = 'all', aggregate = F, city = "all", categ
                     stop("A tipologia introduzida não corresponde à categoria fornecida")))
     }
 
-    if (category == "mandado de prisao cumprido" & aggregate == T){
+    if (category == "mandado de prisao cumprido"){
       ifelse(typology=="all",
              df <- df |>
                dplyr::group_by(uf,ano,mes,categoria,evento,total,populacao) |>
@@ -645,7 +625,7 @@ get_sinespvde_data <- function(state = 'all', aggregate = F, city = "all", categ
                     stop("A tipologia introduzida não corresponde à categoria fornecida")))
     }
 
-    if(category == "profissionais de seguranca" & aggregate == T){
+    if(category == "profissionais de seguranca"){
       ifelse(typology=="all",
              df <- df |>
                dplyr::group_by(uf,evento,ano,mes,agente,populacao)|>
@@ -665,7 +645,7 @@ get_sinespvde_data <- function(state = 'all', aggregate = F, city = "all", categ
                     stop("A tipologia introduzida não corresponde à categoria fornecida")))
     }
 
-    if(category == "bombeiros" & aggregate == T){
+    if(category == "bombeiros"){
       ifelse(typology=="all",
              df <- df |>
                dplyr::group_by(uf,evento,ano,populacao)|>
@@ -686,12 +666,12 @@ get_sinespvde_data <- function(state = 'all', aggregate = F, city = "all", categ
 
   #Argument Relative_Values & granularity == "year" --------------------------------
 
-    if (relative_values == T & granularity == 'year' & city != F) {
-      stop("A city only can be picked when aggregate = F")
+    if (relative_values == T & granularity == 'year' & city != F & pivot==F) {
+      stop("A city only can be picked when relative_values = F")
     }
 
 
-    if (relative_values == T & granularity == 'year' & city == F & category!="all" & aggregate == T){
+    if (relative_values == T & granularity == 'year' & city == F & category!="all" & pivot==F){
 
       load("data/pop_anual.rda")
 
@@ -700,11 +680,7 @@ get_sinespvde_data <- function(state = 'all', aggregate = F, city = "all", categ
         dplyr::select(-mes)|>
         dplyr::left_join(pop_anual, by = c("uf", "ano"))
 
-        if (aggregate == F){
-          stop("To use relative_values = T, is necessary to set aggregate = T")
-        }
-
-        if (category == "vitimas" & aggregate==T){
+        if (category == "vitimas"){
           ifelse(typology=="all",
                  df <- df |>
                    dplyr::group_by(uf,ano,categoria,evento,populacao_anual)|>
@@ -732,7 +708,7 @@ get_sinespvde_data <- function(state = 'all', aggregate = F, city = "all", categ
                       stop("A tipologia introduzida não corresponde à categoria fornecida")))
         }
 
-    if (category == "drogas" & aggregate == T){
+    if (category == "drogas"){
       ifelse(typology=="all",
              df <- df |>
                dplyr::group_by(uf,evento,ano,populacao_anual)|>
@@ -751,7 +727,7 @@ get_sinespvde_data <- function(state = 'all', aggregate = F, city = "all", categ
                     stop("A tipologia introduzida não corresponde à categoria fornecida")))
     }
 
-    if (category == "ocorrencias" & aggregate == T){
+    if (category == "ocorrencias"){
       ifelse(typology=="all",
              df <- df |>
                dplyr::group_by(uf,evento,ano,populacao_anual)|>
@@ -766,7 +742,7 @@ get_sinespvde_data <- function(state = 'all', aggregate = F, city = "all", categ
                     stop("A tipologia introduzida não corresponde à categoria fornecida")))
     }
 
-    if(category == "arma de fogo" & aggregate == T){
+    if(category == "arma de fogo"){
       ifelse(typology=="all",
              df <- df |>
                dplyr::group_by(uf,evento,ano,arma,populacao_anual)|>
@@ -780,7 +756,7 @@ get_sinespvde_data <- function(state = 'all', aggregate = F, city = "all", categ
                     stop("A tipologia introduzida não corresponde à categoria fornecida")))
     }
 
-    if(category == "desaparecidos/localizados" & aggregate == T){
+    if(category == "desaparecidos/localizados"){
       ifelse(typology=="all",
              df <- df |>
                dplyr::group_by(uf,ano,categoria,evento,faixa_etaria,populacao_anual) |>
@@ -803,7 +779,7 @@ get_sinespvde_data <- function(state = 'all', aggregate = F, city = "all", categ
                     stop("A tipologia introduzida não corresponde à categoria fornecida")))
     }
 
-    if (category == "mandado de prisao cumprido" & aggregate == T){
+    if (category == "mandado de prisao cumprido"){
       ifelse(typology=="all",
              df <- df |>
                dplyr::group_by(uf,ano,categoria,evento,populacao_anual) |>
@@ -820,7 +796,7 @@ get_sinespvde_data <- function(state = 'all', aggregate = F, city = "all", categ
                     stop("A tipologia introduzida não corresponde à categoria fornecida")))
     }
 
-    if(category == "profissionais de seguranca" & aggregate == T){
+    if(category == "profissionais de seguranca"){
       ifelse(typology=="all",
              df <- df |>
                dplyr::group_by(uf,evento,ano,agente,populacao_anual)|>
@@ -840,7 +816,7 @@ get_sinespvde_data <- function(state = 'all', aggregate = F, city = "all", categ
                     stop("A tipologia introduzida não corresponde à categoria fornecida")))
     }
 
-    if(category == "bombeiros" & aggregate == T){
+    if(category == "bombeiros"){
       ifelse(typology=="all",
              df <- df |>
                dplyr::group_by(uf,evento,ano,populacao_anual)|>
@@ -860,7 +836,7 @@ get_sinespvde_data <- function(state = 'all', aggregate = F, city = "all", categ
 
 # argument geom--------------------------
 
-    if (geom == T) {
+    if (geom == T & city == F) {
       ufs_geom <- geobr::read_state() |>
         dplyr::select(code_state, abbrev_state) |>
         dplyr::rename('uf' = abbrev_state)
@@ -873,46 +849,839 @@ get_sinespvde_data <- function(state = 'all', aggregate = F, city = "all", categ
 
     }
 
-# argument pivot-----------------------
+    if(geom == T & city !=F){
+      mncp_geom <- geobr::read_municipality()|>
+        dplyr::select(code_muni, name_muni,abbrev_state)|>
+        dplyr::rename(municipio = name_muni,
+                      uf = abbrev_state)
 
-    if (pivot == T & category!="all" ) {
+      mncp_geom$municipio <-  toupper(mncp_geom$municipio)
 
-      if(category="vitimas" & relative_values==F){
-        df <- df|>
-          dplyr::group_by(uf,categoria,evento,ano,mes)|>
-          dplyr::filter(categoria %in% {{category}})|>
-          tidyr::pivot_wider(
-            names_from = evento,
-            values_rom = total_vitimas
-          )
-      }
-
-       df <- df |>
-         tidyr::pivot_wider(
-           names_from = evento,
-           values_from = total) |>
-         janitor::clean_names()
-
-       if (geom == T) {
-         df <- df |>
-         dplyr::select(-geometry, everything(), geometry)
-       }
+      df <- mncp_geom|>
+        dplyr::left_join(df,
+                         by=c("uf", "municipio"))|>
+        na.omit()
     }
 
-  #if (pivot == T & relative_values == T) {
+# argument pivot = T & realtive_values = F -----------------------
 
-   # df <- df |>
-   #   dplyr::select(-ocorrencias) |>
-   #   tidyr::pivot_wider(
-  #      names_from = tipo_crime,
-   #     values_from = ocorrencias_100k_hab) |>
-    #  janitor::clean_names()
+    if (pivot == T & category=="all" ){
+      stop("To use pivot = T, please select a category first")
+    }
 
-    #if (geom == T) {
-   #   df <- df |>
-   #     dplyr::select(-geometry, everything(), geometry)
-   # }
+    if (pivot == T & category!="all") {
 
+      if(category=="vitimas" & relative_values==F & granularity=="month"){
+        ifelse(typology=="all",
+               df <- df|>
+                 dplyr::group_by(uf,categoria,evento,ano,mes)|>
+                 dplyr::filter(categoria %in% {{category}})|>
+                 tidyr::pivot_wider(
+                   names_from = evento,
+                   values_from = c(feminino,masculino,nao_informado,total_vitimas)),
+              ifelse(typology == "Feminicídio" | typology == "Homicídio doloso" |
+                       typology == "Lesão corporal seguida de morte" |
+                       typology == "Morte no trânsito ou em decorrência dele (exceto homicídio doloso)" |
+                       typology == "Mortes a esclarecer (sem indício de crime)" | typology == "Roubo seguido de morte (latrocínio)" |
+                       typology == "Suicídio" | typology == "Tentativa de homicídio" | typology == "Estupro" |
+                       typology == "Morte por intervenção de Agente do Estado",
+                     df <- df|>
+                       dplyr::group_by(uf,categoria,evento,ano,mes)|>
+                       dplyr::filter(categoria %in% {{category}})|>
+                       dplyr::filter(evento %in% {{typology}}) |>
+                       tidyr::pivot_wider(
+                         names_from = evento,
+                         values_from = c(feminino,masculino,nao_informado,total_vitimas)),
+                     stop("A tipologia introduzida não corresponde à categoria fornecida")))
+      }
+
+      if(category=="vitimas" & relative_values==F & granularity=="year"){
+        ifelse(typology=="all",
+               df <- df|>
+                 dplyr::group_by(uf,municipio,categoria,evento,ano)|>
+                 dplyr::filter(categoria %in% {{category}})|>
+                 dplyr::summarize(feminino=sum(feminino,na.rm = T),
+                                  masculino=sum(masculino,na.rm = T),
+                                  nao_informado=sum(nao_informado,na.rm = T),
+                                  total_vitimas=sum(total_vitimas,na.rm = T))|>
+                 tidyr::pivot_wider(
+                   names_from = evento,
+                   values_from = c(feminino,masculino,nao_informado,total_vitimas)),
+               ifelse(typology == "Feminicídio" | typology == "Homicídio doloso" |
+                        typology == "Lesão corporal seguida de morte" |
+                        typology == "Morte no trânsito ou em decorrência dele (exceto homicídio doloso)" |
+                        typology == "Mortes a esclarecer (sem indício de crime)" | typology == "Roubo seguido de morte (latrocínio)" |
+                        typology == "Suicídio" | typology == "Tentativa de homicídio" | typology == "Estupro" |
+                        typology == "Morte por intervenção de Agente do Estado",
+                      df <- df|>
+                        dplyr::group_by(uf,categoria,evento,ano,mes,municipio)|>
+                        dplyr::filter(categoria %in% {{category}})|>
+                        dplyr::filter(evento %in% {{typology}})|>
+                        dplyr::summarize(feminino=sum(feminino,na.rm = T),
+                                         masculino=sum(masculino,na.rm = T),
+                                         nao_informado=sum(nao_informado,na.rm = T),
+                                         total_vitimas=sum(total_vitimas,na.rm = T))|>
+                        tidyr::pivot_wider(
+                          names_from = evento,
+                          values_from = c(feminino,masculino,nao_informado,total_vitimas)),
+                      stop("A tipologia introduzida não corresponde à categoria fornecida")))
+      }
+
+        if(category=="drogas" & relative_values==F & granularity=="month"){
+          ifelse(typology=="all",
+                 df <- df|>
+                   dplyr::group_by(uf,categoria,evento,ano,mes,municipio)|>
+                   dplyr::filter(categoria %in% {{category}})|>
+                   tidyr::pivot_wider(
+                     names_from = evento,
+                     values_from = c(total_casos,total_peso)),
+                 ifelse(typology == "Apreensão de Cocaína" | typology == "Apreensão de Maconha" |
+                          typology == "Tráfico de drogas",
+                        df <- df|>
+                          dplyr::group_by(uf,categoria,evento,ano,mes,municipio)|>
+                          dplyr::filter(categoria %in% {{category}})|>
+                          dplyr::filter(evento %in% {{typology}}) |>
+                          tidyr::pivot_wider(
+                            names_from = evento,
+                            values_from = c(total_casos,total_peso)),
+                        stop("A tipologia introduzida não corresponde à categoria fornecida")))
+        }
+
+        if(category=="drogas" & relative_values==F & granularity=="year"){
+          ifelse(typology=="all",
+                 df <- df|>
+                   dplyr::group_by(uf,categoria,evento,ano,municipio)|>
+                   dplyr::filter(categoria %in% {{category}})|>
+                   dplyr::summarize(total_casos=sum(total_casos,na.rm = T),
+                                    total_peso=sum(total_peso,na.rm = T))|>
+                   tidyr::pivot_wider(
+                     names_from = evento,
+                     values_from = c(total_casos,total_peso)),
+                 ifelse(typology == "Apreensão de Cocaína" | typology == "Apreensão de Maconha" |
+                          typology == "Tráfico de drogas",
+                        df <- df|>
+                          dplyr::group_by(uf,categoria,evento,ano,mes,municipio)|>
+                          dplyr::filter(categoria %in% {{category}})|>
+                          dplyr::filter(evento %in% {{typology}})|>
+                          tidyr::pivot_wider(
+                            names_from = evento,
+                            values_from = c(total_casos,total_peso)),
+                        stop("A tipologia introduzida não corresponde à categoria fornecida")))
+        }
+
+        if(category=="ocorrencias" & relative_values==F & granularity=="month"){
+          ifelse(typology=="all",
+                 df <- df |>
+                   dplyr::group_by(uf,evento,ano,mes,municipio)|>
+                   dplyr::filter(categoria %in% {{category}})|>
+                   tidyr::pivot_wider(
+                     names_from = evento,
+                     values_from = total),
+                 ifelse(typology == "Furto de veículo" | typology == "Roubo a instituição financeira" |
+                          typology == "Roubo de carga" | typology == "Roubo de veículo",
+                        df <- df |>
+                          dplyr::group_by(uf,{{typology}},ano,mes,municipio)|>
+                          dplyr::filter(categoria %in% {{category}})|>
+                          dplyr::filter(evento %in% {{typology}})|>
+                          tidyr::pivot_wider(
+                            names_from = evento,
+                            values_from = total),
+                        stop("A tipologia introduzida não corresponde à categoria fornecida")))
+        }
+
+        if(category=="ocorrencias" & relative_values==F & granularity=="year"){
+          ifesle(typology=="all",
+            df <- df |>
+              dplyr::group_by(uf,evento,ano,municipio)|>
+              dplyr::filter(categoria %in% {{category}})|>
+              dplyr::summarize(total = sum(total, na.rm = T))|>
+              tidyr::pivot_wider(
+                names_from = evento,
+                values_from = total),
+          ifelse(typology == "Furto de veículo" | typology == "Roubo a instituição financeira" |
+                 typology == "Roubo de carga" | typology == "Roubo de veículo",
+                 df <- df |>
+                   dplyr::group_by(uf,{{typology}},ano,municipio)|>
+                   dplyr::filter(categoria %in% {{category}})|>
+                   dplyr::filter(evento %in% {{typology}})|>
+                   dplyr::summarize(total = sum(total, na.rm = T))|>
+                   tidyr::pivot_wider(
+                     names_from = evento,
+                     values_from = total),
+                 stop("A tipologia introduzida não corresponde à categoria fornecida")))
+        }
+
+        if(category=="arma de fogo" & relative_values==F & granularity=="month"){
+          ifelse(typology=="all",
+                 df <- df|>
+                   dplyr::group_by(uf,categoria,evento,ano,mes,arma,municipio)|>
+                   dplyr::filter(categoria %in% {{category}})|>
+                   tidyr::pivot_wider(
+                     names_from = c(evento,arma),
+                     values_from = total),
+                 ifelse(typology == "Arma de Fogo Apreendida",
+                        df <- df|>
+                          dplyr::group_by(uf,categoria,evento,ano,mes,municipio)|>
+                          dplyr::filter(categoria %in% {{category}})|>
+                          dplyr::filter(evento %in% {{typology}}) |>
+                          tidyr::pivot_wider(
+                            names_from = c(evento,arma),
+                            values_from = total),
+                        stop("A tipologia introduzida não corresponde à categoria fornecida")))
+        }
+
+        if(category=="arma de fogo" & relative_values==F & granularity=="year"){
+          ifelse(typology=="all",
+                 df <- df|>
+                   dplyr::group_by(uf,categoria,evento,ano,arma,municipio)|>
+                   dplyr::filter(categoria %in% {{category}})|>
+                   dplyr::summarize(total=sum(total,na.rm = T))|>
+                   tidyr::pivot_wider(
+                     names_from = c(evento,arma),
+                     values_from = total),
+                 ifelse(typology == "Arma de Fogo Apreendida",
+                        df <- df|>
+                          dplyr::group_by(uf,categoria,evento,ano,mes,arma,municipio)|>
+                          dplyr::filter(categoria %in% {{category}})|>
+                          dplyr::filter(evento %in% {{typology}})|>
+                          dplyr::summarize(total=sum(total,na.rm = T))|>
+                          tidyr::pivot_wider(
+                            names_from = c(arma,evento),
+                            values_from = total),
+                        stop("A tipologia introduzida não corresponde à categoria fornecida")))
+        }
+
+        if(category=="desaparecidos/localizados" & relative_values==F & granularity=="month"){
+          ifelse(typology=="all",
+                 df <- df|>
+                   dplyr::group_by(uf,categoria,evento,ano,mes,faixa_etaria,municipio)|>
+                   dplyr::filter(categoria %in% {{category}})|>
+                   tidyr::pivot_wider(
+                     names_from = c(evento,faixa_etaria),
+                     values_from = c(feminino,masculino,nao_informado,total_vitimas)),
+                 ifelse(typology == "Pessoa Desaparecida" | typology == "Pessoa Localizada",
+                        df <- df|>
+                          dplyr::group_by(uf,categoria,evento,ano,mes,faixa_etaria,municipio)|>
+                          dplyr::filter(categoria %in% {{category}})|>
+                          dplyr::filter(evento %in% {{typology}}) |>
+                          tidyr::pivot_wider(
+                            names_from = c(evento,faixa_etaria),
+                            values_from = c(feminino,masculino,nao_informado,total_vitimas)),
+                        stop("A tipologia introduzida não corresponde à categoria fornecida")))
+        }
+
+        if(category=="desaparecidos/localizados" & relative_values==F & granularity=="year"){
+          ifelse(typology=="all",
+                 df <- df|>
+                   dplyr::group_by(uf,categoria,evento,ano,faixa_etaria,municipio)|>
+                   dplyr::filter(categoria %in% {{category}})|>
+                   dplyr::summarize(feminino = (sum(feminino, na.rm = T)),
+                                    masculino = (sum(masculino, na.rm = T)),
+                                    nao_informado = (sum(nao_informado, na.rm = T)),
+                                    total_vitimas = (sum(total_vitimas, na.rm = T)))|>
+                   tidyr::pivot_wider(
+                     names_from = c(evento,faixa_etaria),
+                     values_from = c(feminino,masculino,nao_informado,total_vitimas)),
+                 ifelse(typology == "Pessoa Desaparecida" | typology == "Pessoa Localizada",
+                        df <- df|>
+                          dplyr::group_by(uf,categoria,evento,ano,faixa_etaria,municipio)|>
+                          dplyr::filter(categoria %in% {{category}})|>
+                          dplyr::filter(evento %in% {{typology}})|>
+                          dplyr::summarize(feminino = sum(feminino, na.rm = T),
+                                           masculino = sum(masculino, na.rm = T),
+                                           nao_informado =sum(nao_informado, na.rm = T),
+                                           total_vitimas = sum(total_vitimas, na.rm = T))|>
+                          tidyr::pivot_wider(
+                            names_from = c(evento,faixa_etaria),
+                            values_from = c(feminino,masculino,nao_informado,total_vitimas)),
+                        stop("A tipologia introduzida não corresponde à categoria fornecida")))
+        }
+
+        if(category=="mandado de prisao cumprido" & relative_values==F & granularity=="month"){
+          ifelse(typology=="all",
+                 df <- df|>
+                   dplyr::group_by(uf,categoria,evento,ano,mes,municipio)|>
+                   dplyr::filter(categoria %in% {{category}})|>
+                   tidyr::pivot_wider(
+                     names_from = evento,
+                     values_from = total),
+                 ifelse(typology == "Mandado de prisão cumprido",
+                        df <- df|>
+                          dplyr::group_by(uf,categoria,evento,ano,mes,municipio)|>
+                          dplyr::filter(categoria %in% {{category}})|>
+                          dplyr::filter(evento %in% {{typology}}) |>
+                          tidyr::pivot_wider(
+                            names_from = evento,
+                            values_from = total),
+                        stop("A tipologia introduzida não corresponde à categoria fornecida")))
+        }
+
+        if(category=="mandado de prisao cumprido" & relative_values==F & granularity=="year"){
+          ifelse(typology=="all",
+                 df <- df|>
+                   dplyr::group_by(uf,categoria,evento,ano,municipio)|>
+                   dplyr::filter(categoria %in% {{category}})|>
+                   dplyr::summarize(total=sum(total,na.rm = T))|>
+                   tidyr::pivot_wider(
+                     names_from = evento,
+                     values_from = total),
+                 ifelse(typology == "Mandado de prisão cumprido",
+                        df <- df|>
+                          dplyr::group_by(uf,categoria,evento,ano,municipio)|>
+                          dplyr::filter(categoria %in% {{category}})|>
+                          dplyr::filter(evento %in% {{typology}})|>
+                          dplyr::summarize(total=sum(total,na.rm = T))|>
+                          tidyr::pivot_wider(
+                            names_from = evento,
+                            values_from = total),
+                        stop("A tipologia introduzida não corresponde à categoria fornecida")))
+        }
+
+        if(category=="profissionais de seguranca" & relative_values==F & granularity=="month"){
+          ifelse(typology=="all",
+                 df <- df|>
+                   dplyr::group_by(uf,categoria,evento,ano,mes,agente,municipio)|>
+                   dplyr::filter(categoria %in% {{category}})|>
+                   tidyr::pivot_wider(
+                     names_from = c(evento,agente),
+                     values_from = c(feminino,masculino,nao_informado,total_vitimas)),
+                 ifelse(typology == "Morte de Agente do Estado" | typology == "Suicídio de Agente do Estado",
+                        df <- df|>
+                          dplyr::group_by(uf,categoria,evento,ano,mes,agente,municipio)|>
+                          dplyr::filter(categoria %in% {{category}})|>
+                          dplyr::filter(evento %in% {{typology}}) |>
+                          tidyr::pivot_wider(
+                            names_from = c(evento,agente),
+                            values_from = c(feminino,masculino,nao_informado,total_vitimas)),
+                        stop("A tipologia introduzida não corresponde à categoria fornecida")))
+        }
+
+        if(category=="profissionais de seguranca" & relative_values==F & granularity=="year"){
+          ifelse(typology=="all",
+                 df <- df|>
+                   dplyr::group_by(uf,categoria,evento,ano,agente,municipio)|>
+                   dplyr::filter(categoria %in% {{category}})|>
+                   dplyr::summarize(feminino = sum(feminino, na.rm = T),
+                                    masculino = sum(masculino, na.rm = T),
+                                    nao_informado =sum(nao_informado, na.rm = T),
+                                    total_vitimas = sum(total_vitimas, na.rm = T))|>
+                   tidyr::pivot_wider(
+                     names_from = c(evento,agente),
+                     values_from = c(feminino,masculino,nao_informado,total_vitimas)),
+                 ifelse(typology == "Morte de Agente do Estado" | typology == "Suicídio de Agente do Estado",
+                        df <- df|>
+                          dplyr::group_by(uf,categoria,evento,ano,agente,municipio)|>
+                          dplyr::filter(categoria %in% {{category}})|>
+                          dplyr::filter(evento %in% {{typology}})|>
+                          dplyr::summarize(feminino = sum(feminino, na.rm = T),
+                                           masculino = sum(masculino, na.rm = T),
+                                           nao_informado =sum(nao_informado, na.rm = T),
+                                           total_vitimas = sum(total_vitimas, na.rm = T))|>
+                          tidyr::pivot_wider(
+                            names_from = c(evento,agente),
+                            values_from = c(feminino,masculino,nao_informado,total_vitimas)),
+                        stop("A tipologia introduzida não corresponde à categoria fornecida")))
+        }
+
+        if(category=="bombeiros" & relative_values==F & granularity=="month"){
+          ifelse(typology=="all",
+                 df <- df|>
+                   dplyr::group_by(uf,categoria,evento,ano,mes,municipio)|>
+                   dplyr::filter(categoria %in% {{category}})|>
+                   tidyr::pivot_wider(
+                     names_from = evento,
+                     values_from = total),
+                 ifelse(typology == "Atendimento pré-hospitalar" | typology == "Busca e salvamento" |
+                          typology == "Combate a incêndios" | typology == "Emissão de Alvarás de licença" |
+                          typology == "Realização de vistorias",
+                        df <- df|>
+                          dplyr::group_by(uf,categoria,evento,ano,mes,municipio)|>
+                          dplyr::filter(categoria %in% {{category}})|>
+                          dplyr::filter(evento %in% {{typology}}) |>
+                          tidyr::pivot_wider(
+                            names_from = evento,
+                            values_from = total),
+                        stop("A tipologia introduzida não corresponde à categoria fornecida")))
+        }
+
+        if(category=="bombeiros" & relative_values==F & granularity=="year"){
+          ifelse(typology=="all",
+                 df <- df|>
+                   dplyr::group_by(uf,categoria,evento,ano,municipio)|>
+                   dplyr::filter(categoria %in% {{category}})|>
+                   dplyr::summarize(total=sum(total,na.rm = T))|>
+                   tidyr::pivot_wider(
+                     names_from = evento,
+                     values_from = total),
+                 ifelse(typology == "Atendimento pré-hospitalar" | typology == "Busca e salvamento" |
+                          typology == "Combate a incêndios" | typology == "Emissão de Alvarás de licença" |
+                          typology == "Realização de vistorias",
+                        df <- df|>
+                          dplyr::group_by(uf,categoria,evento,ano,municipio)|>
+                          dplyr::filter(categoria %in% {{category}})|>
+                          dplyr::filter(evento %in% {{typology}})|>
+                          dplyr::summarize(total=sum(total,na.rm = T))|>
+                          tidyr::pivot_wider(
+                            names_from = evento,
+                            values_from = total),
+                        stop("A tipologia introduzida não corresponde à categoria fornecida")))
+        }
+
+      # Relative_values = T -----------------------
+
+      if(relative_values==T & granularity=="month"){
+
+        load("data/pop.rda")
+
+        col_names <- names(pop)
+
+      pop_long <- pop |>
+        tidyr::pivot_longer(
+          cols = col_names[2:28],
+          names_to = "uf",
+          values_to = "populacao")|>
+        dplyr::select(-TOTAL)|>
+        dplyr::mutate(mes=as.factor(mes))
+
+      df <- df |>
+        dplyr::mutate(mes=as.factor(mes))|>
+        dplyr::inner_join(pop_long, by = c("uf", "ano", "mes"))
+
+         if(category=="vitimas"){
+            ifelse(typology=="all",
+                   df <- df|>
+                     dplyr::group_by(uf,categoria,evento,ano,mes,populacao)|>
+                     dplyr::filter(categoria %in% {{category}})|>
+                     dplyr::summarize(feminino=sum(feminino,na.rm = T),
+                                      masculino=sum(masculino,na.rm = T),
+                                      nao_informado=sum(nao_informado,na.rm = T),
+                                      total_vitimas=sum(total_vitimas,na.rm = T))|>
+                     dplyr::mutate(vitimas_100k_hab = round(total_vitimas / populacao * 100000, 2))|>
+                     tidyr::pivot_wider(
+                       names_from = evento,
+                       values_from = c(feminino,masculino,nao_informado,total_vitimas,vitimas_100k_hab)),
+                   ifelse(typology == "Feminicídio" | typology == "Homicídio doloso" |
+                            typology == "Lesão corporal seguida de morte" |
+                            typology == "Morte no trânsito ou em decorrência dele (exceto homicídio doloso)" |
+                            typology == "Mortes a esclarecer (sem indício de crime)" | typology == "Roubo seguido de morte (latrocínio)" |
+                            typology == "Suicídio" | typology == "Tentativa de homicídio" | typology == "Estupro" |
+                            typology == "Morte por intervenção de Agente do Estado",
+                          df <- df|>
+                            dplyr::group_by(uf,categoria,evento,ano,mes)|>
+                            dplyr::filter(categoria %in% {{category}})|>
+                            dplyr::filter(evento %in% {{typology}}) |>
+                            dplyr::summarize(feminino=sum(feminino,na.rm = T),
+                                             masculino=sum(masculino,na.rm = T),
+                                             nao_informado=sum(nao_informado,na.rm = T),
+                                             total_vitimas=sum(total_vitimas,na.rm = T))|>
+                            dplyr::mutate(vitimas_100k_hab = round(total_vitimas / populacao * 100000, 2))|>
+                            tidyr::pivot_wider(
+                              names_from = evento,
+                              values_from = c(feminino,masculino,nao_informado,total_vitimas)),
+                          stop("A tipologia introduzida não corresponde à categoria fornecida")))
+          }
+
+          if(category=="drogas"){
+            ifelse(typology=="all",
+                   df <- df|>
+                     dplyr::group_by(uf,categoria,evento,ano,mes,municipio)|>
+                     dplyr::filter(categoria %in% {{category}})|>
+                     dplyr::summarize(total = sum(total_casos, na.rm = T),
+                                      total_peso = sum(total_peso,na.rm = T))|>
+                     dplyr::mutate(casos_100k_hab = round(total / populacao * 100000, 2))|>
+                     dplyr::mutate(apreensao_100k_hab = round(total_peso / populacao * 100000, 2))|>
+                     tidyr::pivot_wider(
+                       names_from = evento,
+                       values_from = c(total_casos,total_peso,casos_100k_hab,apreensao_100k_hab)),
+                   ifelse(typology == "Apreensão de Cocaína" | typology == "Apreensão de Maconha" |
+                            typology == "Tráfico de drogas",
+                          df <- df|>
+                            dplyr::group_by(uf,categoria,evento,ano,mes,municipio)|>
+                            dplyr::filter(categoria %in% {{category}})|>
+                            dplyr::filter(evento %in% {{typology}}) |>
+                            dplyr::summarize(total = sum(total_casos, na.rm = T),
+                                             total_peso = sum(total_peso,na.rm = T))|>
+                            dplyr::mutate(casos_100k_hab = round(total / populacao * 100000, 2))|>
+                            dplyr::mutate(apreensao_100k_hab = round(total_peso / populacao * 100000, 2))|>
+                            tidyr::pivot_wider(
+                              names_from = evento,
+                              values_from = c(total_casos,total_peso,casos_100k_hab,apreensao_100k_hab)),
+                          stop("A tipologia introduzida não corresponde à categoria fornecida")))
+          }
+
+          if(category=="ocorrencias"){
+            ifelse(typology=="all",
+                   df <- df |>
+                     dplyr::group_by(uf,evento,ano,mes,municipio)|>
+                     dplyr::filter(categoria %in% {{category}})|>
+                     dplyr::summarize(total = sum(total, na.rm = T))|>
+                     dplyr::mutate(ocorrencia_100k_hab = round(total / populacao * 100000, 2))|>
+                     tidyr::pivot_wider(
+                       names_from = evento,
+                       values_from = total,ocorrencia_100k_hab),
+                   ifelse(typology == "Furto de veículo" | typology == "Roubo a instituição financeira" |
+                            typology == "Roubo de carga" | typology == "Roubo de veículo",
+                          df <- df |>
+                            dplyr::group_by(uf,{{typology}},ano,mes,municipio)|>
+                            dplyr::filter(categoria %in% {{category}})|>
+                            dplyr::filter(evento %in% {{typology}})|>
+                            dplyr::summarize(total = sum(total, na.rm = T))|>
+                            dplyr::mutate(ocorrencia_100k_hab = round(total / populacao * 100000, 2))|>
+                            tidyr::pivot_wider(
+                              names_from = evento,
+                              values_from = total,ocorrencia_100k_hab),
+                          stop("A tipologia introduzida não corresponde à categoria fornecida")))
+          }
+
+          if(category=="arma de fogo"){
+            ifelse(typology=="all",
+                   df <- df|>
+                     dplyr::group_by(uf,categoria,evento,ano,mes,arma,municipio)|>
+                     dplyr::filter(categoria %in% {{category}})|>
+                     dplyr::summarize(total = sum(total, na.rm = T))|>
+                     dplyr::mutate(arma_apreend_100k_hab = round(total / populacao * 100000, 2))|>
+                     tidyr::pivot_wider(
+                       names_from = c(evento,arma),
+                       values_from = total,arma_apreend_100k_hab),
+                   ifelse(typology == "Arma de Fogo Apreendida",
+                          df <- df|>
+                            dplyr::group_by(uf,categoria,evento,ano,mes,municipio)|>
+                            dplyr::filter(categoria %in% {{category}})|>
+                            dplyr::filter(evento %in% {{typology}}) |>
+                            dplyr::summarize(total = sum(total, na.rm = T))|>
+                            dplyr::mutate(arma_apreend_100k_hab = round(total / populacao * 100000, 2))|>
+                            tidyr::pivot_wider(
+                              names_from = c(evento,arma),
+                              values_from = total,arma_apreend_100k_hab),
+                          stop("A tipologia introduzida não corresponde à categoria fornecida")))
+          }
+
+          if(category=="desaparecidos/localizados"){
+            ifelse(typology=="all",
+                   df <- df|>
+                     dplyr::group_by(uf,categoria,evento,ano,mes,faixa_etaria,municipio)|>
+                     dplyr::filter(categoria %in% {{category}})|>
+                     dplyr::filter({categoria} %in% {{category}})|>
+                     dplyr::summarize(total_vitimas = (sum(total_vitimas, na.rm = T)))|>
+                     dplyr::mutate(vitimas_100k_hab = round(total_vitimas / populacao * 100000, 2))|>
+                     tidyr::pivot_wider(
+                       names_from = c(evento,faixa_etaria),
+                       values_from = c(feminino,masculino,nao_informado,total_vitimas),vitimas_100k_hab),
+                   ifelse(typology == "Pessoa Desaparecida" | typology == "Pessoa Localizada",
+                          df <- df|>
+                            dplyr::group_by(uf,categoria,evento,ano,mes,faixa_etaria,municipio)|>
+                            dplyr::filter(categoria %in% {{category}})|>
+                            dplyr::filter(evento %in% {{typology}}) |>
+                            dplyr::summarize(total_vitimas = (sum(total_vitimas, na.rm = T)))|>
+                            dplyr::mutate(vitimas_100k_hab = round(total_vitimas / populacao * 100000, 2))|>
+                            tidyr::pivot_wider(
+                              names_from = c(evento,faixa_etaria),
+                              values_from = c(feminino,masculino,nao_informado,total_vitimas),vitimas_100k_hab),
+                          stop("A tipologia introduzida não corresponde à categoria fornecida")))
+          }
+
+          if(category=="mandado de prisao cumprido"){
+            ifelse(typology=="all",
+                   df <- df|>
+                     dplyr::group_by(uf,categoria,evento,ano,mes,municipio)|>
+                     dplyr::filter(categoria %in% {{category}})|>
+                     dplyr::summarize(total)|>
+                     dplyr::mutate(total_100k_hab = round(total / populacao * 100000, 2))|>
+                     tidyr::pivot_wider(
+                       names_from = evento,
+                       values_from = total,total_100k_hab),
+                   ifelse(typology == "Mandado de prisão cumprido",
+                          df <- df|>
+                            dplyr::group_by(uf,categoria,evento,ano,mes,municipio)|>
+                            dplyr::filter(categoria %in% {{category}})|>
+                            dplyr::filter(evento %in% {{typology}}) |>
+                            dplyr::summarize(total)|>
+                            dplyr::mutate(total_100k_hab = round(total / populacao * 100000, 2))|>
+                            tidyr::pivot_wider(
+                              names_from = evento,
+                              values_from = total,total_100k_hab),
+                          stop("A tipologia introduzida não corresponde à categoria fornecida")))
+          }
+
+          if(category=="profissionais de seguranca"){
+            ifelse(typology=="all",
+                   df <- df|>
+                     dplyr::group_by(uf,categoria,evento,ano,mes,agente,municipio)|>
+                     dplyr::filter(categoria %in% {{category}})|>
+                     dplyr::summarize(total_fem = (sum(feminino, na.rm = T)),
+                                      total_masc = (sum(masculino, na.rm = T)),
+                                      total_n_inf = (sum(nao_informado, na.rm = T)),
+                                      total = (sum(total_vitimas, na.rm = T)))|>
+                     dplyr::mutate(vitimas_100k_hab = round(total / populacao * 100000, 2))|>
+                     tidyr::pivot_wider(
+                       names_from = c(evento,agente),
+                       values_from = c(feminino,masculino,nao_informado,total_vitimas,vitimas_100k_hab)),
+                   ifelse(typology == "Morte de Agente do Estado" | typology == "Suicídio de Agente do Estado",
+                          df <- df|>
+                            dplyr::group_by(uf,categoria,evento,ano,mes,agente,municipio)|>
+                            dplyr::filter(categoria %in% {{category}})|>
+                            dplyr::filter(evento %in% {{typology}}) |>
+                            dplyr::summarize(total_fem = (sum(feminino, na.rm = T)),
+                                             total_masc = (sum(masculino, na.rm = T)),
+                                             total_n_inf = (sum(nao_informado, na.rm = T)),
+                                             total = (sum(total_vitimas, na.rm = T)))|>
+                            dplyr::mutate(vitimas_100k_hab = round(total / populacao * 100000, 2))|>
+                            tidyr::pivot_wider(
+                              names_from = c(evento,agente),
+                              values_from = c(feminino,masculino,nao_informado,total_vitimas,vitimas_100k_hab)),
+                          stop("A tipologia introduzida não corresponde à categoria fornecida")))
+          }
+
+          if(category=="bombeiros"){
+            ifelse(typology=="all",
+                   df <- df|>
+                     dplyr::group_by(uf,categoria,evento,ano,mes,municipio)|>
+                     dplyr::filter(categoria %in% {{category}})|>
+                     dplyr::summarize(total=sum(total,na.rm = T))|>
+                     dplyr::mutate(total_100k_hab = round(total / populacao * 100000, 2))|>
+                     tidyr::pivot_wider(
+                       names_from = evento,
+                       values_from = total,total_100k_hab),
+                   ifelse(typology == "Atendimento pré-hospitalar" | typology == "Busca e salvamento" |
+                            typology == "Combate a incêndios" | typology == "Emissão de Alvarás de licença" |
+                            typology == "Realização de vistorias",
+                          df <- df|>
+                            dplyr::group_by(uf,categoria,evento,ano,mes,municipio)|>
+                            dplyr::filter(categoria %in% {{category}})|>
+                            dplyr::filter(evento %in% {{typology}}) |>
+                            dplyr::summarize(total=sum(total,na.rm = T))|>
+                            dplyr::mutate(total_100k_hab = round(total / populacao * 100000, 2))|>
+                            tidyr::pivot_wider(
+                              names_from = evento,
+                              values_from = total,total_100k_hab),
+                          stop("A tipologia introduzida não corresponde à categoria fornecida")))
+          }
+      }
+
+      if (relative_values==T & granularity == "year"){
+
+        load("data/pop_anual.rda")
+
+        df <- df |>
+          dplyr::mutate(ano=as.character(ano))|>
+          dplyr::select(-mes)|>
+          dplyr::left_join(pop_anual, by = c("uf", "ano"))
+
+        if(city!=F){
+          stop("To use granularity = 'year', plese set city = F")
+        }
+
+        if(category=="vitimas"){
+          ifelse(typology=="all",
+                 df <- df|>
+                   dplyr::group_by(uf,categoria,evento,ano,populacao_anual)|>
+                   dplyr::filter(categoria %in% {{category}})|>
+                   dplyr::summarize(feminino=sum(feminino,na.rm = T),
+                                    masculino=sum(masculino,na.rm = T),
+                                    nao_informado=sum(nao_informado,na.rm = T),
+                                    total_vitimas=sum(total_vitimas,na.rm = T))|>
+                   dplyr::mutate(vitimas_100k_hab = round(total_vitimas / populacao_anual * 100000, 2))|>
+                   tidyr::pivot_wider(
+                     names_from = evento,
+                     values_from = c(feminino,masculino,nao_informado,total_vitimas,vitimas_100k_hab)),
+                 ifelse(typology == "Feminicídio" | typology == "Homicídio doloso" |
+                          typology == "Lesão corporal seguida de morte" |
+                          typology == "Morte no trânsito ou em decorrência dele (exceto homicídio doloso)" |
+                          typology == "Mortes a esclarecer (sem indício de crime)" | typology == "Roubo seguido de morte (latrocínio)" |
+                          typology == "Suicídio" | typology == "Tentativa de homicídio" | typology == "Estupro" |
+                          typology == "Morte por intervenção de Agente do Estado",
+                        df <- df|>
+                          dplyr::group_by(uf,categoria,evento,ano,populacao_anual)|>
+                          dplyr::filter(categoria %in% {{category}})|>
+                          dplyr::filter(evento %in% {{typology}}) |>
+                          dplyr::summarize(feminino=sum(feminino,na.rm = T),
+                                           masculino=sum(masculino,na.rm = T),
+                                           nao_informado=sum(nao_informado,na.rm = T),
+                                           total_vitimas=sum(total_vitimas,na.rm = T))|>
+                          dplyr::mutate(vitimas_100k_hab = round(total_vitimas / populacao_anual * 100000, 2))|>
+                          tidyr::pivot_wider(
+                            names_from = evento,
+                            values_from = c(feminino,masculino,nao_informado,total_vitimas)),
+                        stop("A tipologia introduzida não corresponde à categoria fornecida")))
+        }
+
+        if(category=="drogas"){
+          ifelse(typology=="all",
+                 df <- df|>
+                   dplyr::group_by(uf,categoria,evento,ano,populacao_anual,municipio)|>
+                   dplyr::filter(categoria %in% {{category}})|>
+                   dplyr::summarize(total = sum(total_casos, na.rm = T),
+                                    total_peso = sum(total_peso,na.rm = T))|>
+                   dplyr::mutate(casos_100k_hab = round(total / populacao_anual * 100000, 2))|>
+                   dplyr::mutate(apreensao_100k_hab = round(total_peso / populacao_anual * 100000, 2))|>
+                   tidyr::pivot_wider(
+                     names_from = evento,
+                     values_from = c(total_casos,total_peso,casos_100k_hab,apreensao_100k_hab)),
+                 ifelse(typology == "Apreensão de Cocaína" | typology == "Apreensão de Maconha" |
+                          typology == "Tráfico de drogas",
+                        df <- df|>
+                          dplyr::group_by(uf,categoria,evento,ano,populacao_anual,municipio)|>
+                          dplyr::filter(categoria %in% {{category}})|>
+                          dplyr::filter(evento %in% {{typology}}) |>
+                          dplyr::summarize(total = sum(total_casos, na.rm = T),
+                                           total_peso = sum(total_peso,na.rm = T))|>
+                          dplyr::mutate(casos_100k_hab = round(total / populacao_anual * 100000, 2))|>
+                          dplyr::mutate(apreensao_100k_hab = round(total_peso / populacao_anual * 100000, 2))|>
+                          tidyr::pivot_wider(
+                            names_from = evento,
+                            values_from = c(total_casos,total_peso,casos_100k_hab,apreensao_100k_hab)),
+                        stop("A tipologia introduzida não corresponde à categoria fornecida")))
+        }
+
+        if(category=="ocorrencias"){
+          ifelse(typology=="all",
+                 df <- df |>
+                   dplyr::group_by(uf,evento,ano,populacao_anual,municipio)|>
+                   dplyr::filter(categoria %in% {{category}})|>
+                   dplyr::summarize(total = sum(total, na.rm = T))|>
+                   dplyr::mutate(ocorrencia_100k_hab = round(total / populacao_anual * 100000, 2))|>
+                   tidyr::pivot_wider(
+                     names_from = evento,
+                     values_from = total,ocorrencia_100k_hab),
+                 ifelse(typology == "Furto de veículo" | typology == "Roubo a instituição financeira" |
+                          typology == "Roubo de carga" | typology == "Roubo de veículo",
+                        df <- df |>
+                          dplyr::group_by(uf,{{typology}},ano,populacao_anual,municipio)|>
+                          dplyr::filter(categoria %in% {{category}})|>
+                          dplyr::filter(evento %in% {{typology}})|>
+                          dplyr::summarize(total = sum(total, na.rm = T))|>
+                          dplyr::mutate(ocorrencia_100k_hab = round(total / populacao_anual * 100000, 2))|>
+                          tidyr::pivot_wider(
+                            names_from = evento,
+                            values_from = total,ocorrencia_100k_hab),
+                        stop("A tipologia introduzida não corresponde à categoria fornecida")))
+        }
+
+        if(category=="arma de fogo"){
+          ifelse(typology=="all",
+                 df <- df|>
+                   dplyr::group_by(uf,categoria,evento,ano,populacao_anual,arma,municipio)|>
+                   dplyr::filter(categoria %in% {{category}})|>
+                   dplyr::summarize(total = sum(total, na.rm = T))|>
+                   dplyr::mutate(arma_apreend_100k_hab = round(total / populacao_anual * 100000, 2))|>
+                   tidyr::pivot_wider(
+                     names_from = c(evento,arma),
+                     values_from = total,arma_apreend_100k_hab),
+                 ifelse(typology == "Arma de Fogo Apreendida",
+                        df <- df|>
+                          dplyr::group_by(uf,categoria,evento,ano,populacao_anual,municipio)|>
+                          dplyr::filter(categoria %in% {{category}})|>
+                          dplyr::filter(evento %in% {{typology}}) |>
+                          dplyr::summarize(total = sum(total, na.rm = T))|>
+                          dplyr::mutate(arma_apreend_100k_hab = round(total / populacao_anual * 100000, 2))|>
+                          tidyr::pivot_wider(
+                            names_from = c(evento,arma),
+                            values_from = total,arma_apreend_100k_hab),
+                        stop("A tipologia introduzida não corresponde à categoria fornecida")))
+        }
+
+        if(category=="desaparecidos/localizados"){
+          ifelse(typology=="all",
+                 df <- df|>
+                   dplyr::group_by(uf,categoria,evento,ano,populacao_anual,faixa_etaria,municipio)|>
+                   dplyr::filter(categoria %in% {{category}})|>
+                   dplyr::filter({categoria} %in% {{category}})|>
+                   dplyr::summarize(total_vitimas = (sum(total_vitimas, na.rm = T)))|>
+                   dplyr::mutate(vitimas_100k_hab = round(total_vitimas / populacao_anual * 100000, 2))|>
+                   tidyr::pivot_wider(
+                     names_from = c(evento,faixa_etaria),
+                     values_from = c(feminino,masculino,nao_informado,total_vitimas),vitimas_100k_hab),
+                 ifelse(typology == "Pessoa Desaparecida" | typology == "Pessoa Localizada",
+                        df <- df|>
+                          dplyr::group_by(uf,categoria,evento,ano,populacao_anual,faixa_etaria,municipio)|>
+                          dplyr::filter(categoria %in% {{category}})|>
+                          dplyr::filter(evento %in% {{typology}}) |>
+                          dplyr::summarize(total_vitimas = (sum(total_vitimas, na.rm = T)))|>
+                          dplyr::mutate(vitimas_100k_hab = round(total_vitimas / populacao_anual * 100000, 2))|>
+                          tidyr::pivot_wider(
+                            names_from = c(evento,faixa_etaria),
+                            values_from = c(feminino,masculino,nao_informado,total_vitimas),vitimas_100k_hab),
+                        stop("A tipologia introduzida não corresponde à categoria fornecida")))
+        }
+
+        if(category=="mandado de prisao cumprido"){
+          ifelse(typology=="all",
+                 df <- df|>
+                   dplyr::group_by(uf,categoria,evento,ano,populacao_anual,municipio)|>
+                   dplyr::filter(categoria %in% {{category}})|>
+                   dplyr::summarize(total)|>
+                   dplyr::mutate(total_100k_hab = round(total / populacao_anual * 100000, 2))|>
+                   tidyr::pivot_wider(
+                     names_from = evento,
+                     values_from = total,total_100k_hab),
+                 ifelse(typology == "Mandado de prisão cumprido",
+                        df <- df|>
+                          dplyr::group_by(uf,categoria,evento,ano,populacao_anual,municipio)|>
+                          dplyr::filter(categoria %in% {{category}})|>
+                          dplyr::filter(evento %in% {{typology}}) |>
+                          dplyr::summarize(total)|>
+                          dplyr::mutate(total_100k_hab = round(total / populacao_anual * 100000, 2))|>
+                          tidyr::pivot_wider(
+                            names_from = evento,
+                            values_from = total,total_100k_hab),
+                        stop("A tipologia introduzida não corresponde à categoria fornecida")))
+        }
+
+        if(category=="profissionais de seguranca"){
+          ifelse(typology=="all",
+                 df <- df|>
+                   dplyr::group_by(uf,categoria,evento,ano,populacao_anual,agente,municipio)|>
+                   dplyr::filter(categoria %in% {{category}})|>
+                   dplyr::summarize(total_fem = (sum(feminino, na.rm = T)),
+                                    total_masc = (sum(masculino, na.rm = T)),
+                                    total_n_inf = (sum(nao_informado, na.rm = T)),
+                                    total = (sum(total_vitimas, na.rm = T)))|>
+                   dplyr::mutate(vitimas_100k_hab = round(total / populacao_anual * 100000, 2))|>
+                   tidyr::pivot_wider(
+                     names_from = c(evento,agente),
+                     values_from = c(feminino,masculino,nao_informado,total_vitimas,vitimas_100k_hab)),
+                 ifelse(typology == "Morte de Agente do Estado" | typology == "Suicídio de Agente do Estado",
+                        df <- df|>
+                          dplyr::group_by(uf,categoria,evento,ano,populacao_anual,agente,municipio)|>
+                          dplyr::filter(categoria %in% {{category}})|>
+                          dplyr::filter(evento %in% {{typology}}) |>
+                          dplyr::summarize(total_fem = (sum(feminino, na.rm = T)),
+                                           total_masc = (sum(masculino, na.rm = T)),
+                                           total_n_inf = (sum(nao_informado, na.rm = T)),
+                                           total = (sum(total_vitimas, na.rm = T)))|>
+                          dplyr::mutate(vitimas_100k_hab = round(total / populacao_anual * 100000, 2))|>
+                          tidyr::pivot_wider(
+                            names_from = c(evento,agente),
+                            values_from = c(feminino,masculino,nao_informado,total_vitimas,vitimas_100k_hab)),
+                        stop("A tipologia introduzida não corresponde à categoria fornecida")))
+        }
+
+        if(category=="bombeiros"){
+          ifelse(typology=="all",
+                 df <- df|>
+                   dplyr::group_by(uf,categoria,evento,ano,populacao_anual,municipio)|>
+                   dplyr::filter(categoria %in% {{category}})|>
+                   dplyr::summarize(total=sum(total,na.rm = T))|>
+                   dplyr::mutate(total_100k_hab = round(total / populacao_anual * 100000, 2))|>
+                   tidyr::pivot_wider(
+                     names_from = evento,
+                     values_from = total,total_100k_hab),
+                 ifelse(typology == "Atendimento pré-hospitalar" | typology == "Busca e salvamento" |
+                          typology == "Combate a incêndios" | typology == "Emissão de Alvarás de licença" |
+                          typology == "Realização de vistorias",
+                        df <- df|>
+                          dplyr::group_by(uf,categoria,evento,ano,populacao_anual,municipio)|>
+                          dplyr::filter(categoria %in% {{category}})|>
+                          dplyr::filter(evento %in% {{typology}}) |>
+                          dplyr::summarize(total=sum(total,na.rm = T))|>
+                          dplyr::mutate(total_100k_hab = round(total / populacao_anual * 100000, 2))|>
+                          tidyr::pivot_wider(
+                            names_from = evento,
+                            values_from = total,total_100k_hab),
+                        stop("A tipologia introduzida não corresponde à categoria fornecida")))
+        }
+      }
+    }
 
     message("Query completed.")
 
@@ -921,5 +1690,3 @@ get_sinespvde_data <- function(state = 'all', aggregate = F, city = "all", categ
 
   return(df)
 }
-
-
