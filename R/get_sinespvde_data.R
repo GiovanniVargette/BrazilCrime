@@ -1,4 +1,4 @@
-#' get_sinesp-vde_data Function
+#' get_sinespvde_data Function
 #'
 #'This function is responsible for collecting criminal data directly from the SINESP database.
 #'The data collected by this function starts temporally in January 2015 and goes until December 2022,
