@@ -12,7 +12,8 @@ get_sinespvde_data(
   year = "all",
   granularity = "month",
   pivot = F,
-  geom = F
+  geom = F,
+  relative_values = F
 )
 }
 \description{
