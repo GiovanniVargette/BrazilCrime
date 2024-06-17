@@ -16,13 +16,13 @@
 
 - [X]  Inclusão de argumento booleano para retornar o número de ocorrências a cada 100 mil habitantes (dados de projeções mensais provenientes das [projeções](https://www.ibge.gov.br/estatisticas/sociais/populacao/9109-projecao-da-populacao.html?=&t=downloads) do IBGE); 
 
-- [ ]  Adição da função que coleta os dados divulgados na plataforma [gov.br](https://www.gov.br/mj/pt-br/assuntos/sua-seguranca/seguranca-publica/estatistica/dados-nacionais-1/base-de-dados-e-notas-metodologicas-dos-gestores-estaduais-sinesp-vde-2022-e-2023) disponibilizados pelo Ministério da Justiça (Sinesp-VDE); 
+- [X] Adicionar testes para as funções;
 
-- [ ]  Criar logo do pacote; 
+- [X]  Adição da função que coleta os dados divulgados na plataforma [gov.br](https://www.gov.br/mj/pt-br/assuntos/sua-seguranca/seguranca-publica/estatistica/dados-nacionais-1/base-de-dados-e-notas-metodologicas-dos-gestores-estaduais-sinesp-vde-2022-e-2023) disponibilizados pelo Ministério da Justiça (Sinesp-VDE); 
 
-- [ ]  Subir versão inicial para o CRAN; e
+- [ ]  Criar logo do pacote; e
 
-- [ ]  Implementação de funções para modelos preditivos.
+- [ ]  Subir versão inicial para o CRAN; 
 
 
 
@@ -59,20 +59,20 @@ library(BrazilCrime)
 Baixar todos os dados do SINESP entre 2015 e 2022 com granularidade mensal.
 
 ```r
-dados <- get_sinesp_data() 
+dados <- get_sinesp_state_data() 
 ```
 
 Baixar todos os dados do SINESP entre 2015 e 2022 com granularidade anual.
 
 ```r
-dados <- get_sinesp_data(granularity = 'year') 
+dados <- get_sinesp_state_data(granularity = 'year') 
 ```
 
 Baixar todos os dados do SINESP de 2018 e 2019 sobre homicídio doloso para os 
 estados de São Paulo, Rio de Janeiro e Minas Gerais com granularidade mensal.
 
 ```r
-dados <- get_sinesp_data(state = c('RJ', 'SP', 'MG'),
+dados <- get_sinesp_state_data(state = c('RJ', 'SP', 'MG'),
                          typology = 'Homicídio doloso',
                          year = c(2018, 2019))
 ```
@@ -82,7 +82,7 @@ Baixar os dados dos estados do Sul do Brasil sobre roubo de veículos para o ano
 de 2022 com granularidade anual e com os vetores espaciais das UFs.
 
 ```r
-data_sul <- get_sinesp_data(state = c('PR','SC','RS'),
+data_sul <- get_sinesp_state_data(state = c('PR','SC','RS'),
                             typology = 'Roubo de veículo',
                             year = 2022,
                             geom = T,
