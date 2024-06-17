@@ -1,22 +1,31 @@
 Package: BrazilCrime
-Title: What the Package Does (One Line, Title Case)
-Version: 0.0.0.9000
+Title: Accesses Brazilian Public Security Data from SINESP since 2015
+Version: 0.1
 Authors@R: 
-    person("First", "Last", , "first.last@example.com", role = c("aut", "cre"),
-           comment = c(ORCID = "YOUR-ORCID-ID"))
-Description: What the package does (one paragraph).
+    c(
+    person("Giovanni", "Vargette", , "g216978@dac.unicamp.br", role = c("aut"),
+           comment = c(ORCID = "https://orcid.org/0009-0006-8164-5274")),
+    person("Igor", "Laltuf", , "igorlaltuf@gmail.com", role = c("aut", "cre"),
+           comment = c(ORCID = "https://orcid.org/0000-0002-5614-4404")),
+    person("Marcelo", "Justus", , "mjustus@unicamp.br", role = c("aut"),
+           comment = c(ORCID = "https://orcid.org/0000-0001-8660-1779")))
+Maintainer: Igor Laltuf <igorlaltuf@gmail.com>
+Description: Allows access to data from the Brazilian Public Security Information System (SINESP) by state and municipality.
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.1
 Imports: 
+    dplyr,
     geobr,
     janitor,
     openxlsx,
+    readxl,
     tidyr
 Depends: 
     R (>= 2.10)
 LazyData: true
+LazyDataCompression: xz
 Suggests: 
     testthat (>= 3.0.0)
 Config/testthat/edition: 3

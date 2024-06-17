@@ -1,105 +1,61 @@
-## code to prepare `DATASET` dataset goes here
+## code to prepare `sinesp_vde` dataset goes here
 
-link19 <- "https://www.gov.br/mj/pt-br/assuntos/sua-seguranca/seguranca-publica/estatistica/download/dnsp-base-de-dados/banco_vde_2019.xlsx/"
-
-link20 <- "https://www.gov.br/mj/pt-br/assuntos/sua-seguranca/seguranca-publica/estatistica/download/dnsp-base-de-dados/banco_vde_2020.xlsx/"
-
-link21 <- "https://www.gov.br/mj/pt-br/assuntos/sua-seguranca/seguranca-publica/estatistica/download/dnsp-base-de-dados/banco_vde_2021.xlsx/"
-
-link22 <- "https://www.gov.br/mj/pt-br/assuntos/sua-seguranca/seguranca-publica/estatistica/download/dnsp-base-de-dados/banco_vde_2022.xlsx/"
-
-link23 <- "https://www.gov.br/mj/pt-br/assuntos/sua-seguranca/seguranca-publica/estatistica/download/dnsp-base-de-dados/banco_vde_2023.xlsx/"
-
-link24 <- "https://www.gov.br/mj/pt-br/assuntos/sua-seguranca/seguranca-publica/estatistica/download/dnsp-base-de-dados/banco_vde_2024.xlsx/"
+library(openxlsx)
+library(dplyr)
+options(timeout = 300)
 
 
-df19 <- openxlsx::read.xlsx(link19) |>
-  dplyr::mutate(mes = dplyr::case_when(
-    data_referencia == 43466 ~ 1,
-    data_referencia == 43497 ~ 2,
-    data_referencia == 43525 ~ 3,
-    data_referencia == 43556 ~ 4,
-    data_referencia == 43586 ~ 5,
-    data_referencia == 43617 ~ 6,
-    data_referencia == 43647 ~ 7,
-    data_referencia == 43678 ~ 8,
-    data_referencia == 43709 ~ 9,
-    data_referencia == 43739 ~ 10,
-    data_referencia == 43770 ~ 11,
-    data_referencia == 43800 ~ 12))|>
-  dplyr::mutate(ano=2019)
+current_year <- as.numeric(format(Sys.Date(), "%Y"))
+anos <- 2015:current_year
 
-df20 <- openxlsx::read.xlsx(link20) |>
-  dplyr::mutate(mes = dplyr::case_when(
-    data_referencia == 43831 ~ 1,
-    data_referencia == 43862 ~ 2,
-    data_referencia == 43891 ~ 3,
-    data_referencia == 43922 ~ 4,
-    data_referencia == 43952 ~ 5,
-    data_referencia == 43983 ~ 6,
-    data_referencia == 44013 ~ 7,
-    data_referencia == 44044 ~ 8,
-    data_referencia == 44075 ~ 9,
-    data_referencia == 44105 ~ 10,
-    data_referencia == 44136 ~ 11,
-    data_referencia == 44166 ~ 12))|>
-  dplyr::mutate(ano=2020)
+base_url <- "https://www.gov.br/mj/pt-br/assuntos/sua-seguranca/seguranca-publica/estatistica/download/dnsp-base-de-dados/bancovde-"
 
-df21 <- openxlsx::read.xlsx(link21) |>
-  dplyr::mutate(mes = dplyr::case_when(
-    data_referencia == 44197 ~ 1,
-    data_referencia == 44228 ~ 2,
-    data_referencia == 44256 ~ 3,
-    data_referencia == 44287 ~ 4,
-    data_referencia == 44317 ~ 5,
-    data_referencia == 44348 ~ 6,
-    data_referencia == 44378 ~ 7,
-    data_referencia == 44409 ~ 8,
-    data_referencia == 44440 ~ 9,
-    data_referencia == 44470 ~ 10,
-    data_referencia == 44501 ~ 11,
-    data_referencia == 44531 ~ 12))|>
-  dplyr::mutate(ano=2021)
+# Funcion to download the data
+baixar_arquivo <- function(ano) {
+  link <- paste0(base_url, ano, ".xlsx")
+  destfile <- paste0("bancovde-", ano, ".xlsx")
+  tryCatch({
+    download.file(link, destfile, mode = "wb")
+    return(destfile)
+  }, error = function(e) {
+    cat("Erro ao baixar o arquivo para o ano", ano, ": ", e$message, "\n")
+    return(NULL)
+  })
+}
 
-df22 <- openxlsx::read.xlsx(link22)|>
-  dplyr::mutate(mes = dplyr::case_when(
-    data_referencia == 44562 ~ 1,
-    data_referencia == 44593 ~ 2,
-    data_referencia == 44621 ~ 3,
-    data_referencia == 44652 ~ 4,
-    data_referencia == 44682 ~ 5,
-    data_referencia == 44713 ~ 6,
-    data_referencia == 44743 ~ 7,
-    data_referencia == 44774 ~ 8,
-    data_referencia == 44805 ~ 9,
-    data_referencia == 44835 ~ 10,
-    data_referencia == 44866 ~ 11,
-    data_referencia == 44896 ~ 12))|>
-  dplyr::mutate(ano=2022)
+# Function to read and treat the data
+processar_dados <- function(destfile, ano) {
+  df <- openxlsx::read.xlsx(destfile) %>%
+    dplyr::mutate(data = as.Date(data_referencia, origin = "1899-12-30"),
+                  mes = format(as.Date(data_referencia, origin = "1899-12-30"), "%m"),
+                  ano = ano)
+  return(df)
+}
 
-df23 <- openxlsx::read.xlsx(link23)|>
-  dplyr::mutate(mes = dplyr::case_when(
-    data_referencia == 44927 ~ 1,
-    data_referencia == 44958 ~ 2,
-    data_referencia == 44986 ~ 3,
-    data_referencia == 45017 ~ 4,
-    data_referencia == 45047 ~ 5,
-    data_referencia == 45078 ~ 6,
-    data_referencia == 45108 ~ 7,
-    data_referencia == 45139 ~ 8,
-    data_referencia == 45170 ~ 9,
-    data_referencia == 45200 ~ 10,
-    data_referencia == 45231 ~ 11,
-    data_referencia == 45261 ~ 12))|>
-  dplyr::mutate(ano=2023)
 
-df24 <- openxlsx::read.xlsx(link24)|>
-  dplyr::mutate(mes = dplyr::case_when(
-    data_referencia == 45292 ~ 1,
-    data_referencia == 45323 ~ 2))|>
-  dplyr::mutate(ano=2024)
+lista_dfs <- lapply(anos, function(ano) {
+  destfile <- baixar_arquivo(ano)
+  if (!is.null(destfile)) {
+    return(processar_dados(destfile, ano))
+  } else {
+    return(NULL)
+  }
+})
 
-df <- dplyr::bind_rows(df19,df20,df21,df22,df23,df24) |>
+# Remover os data frames que não foram baixados com sucesso
+lista_dfs <- Filter(Negate(is.null), lista_dfs)
+
+# Combinar todos os data frames em um único
+if (length(lista_dfs) > 0) {
+  dados_completos <- bind_rows(lista_dfs)
+  # Exibir os primeiros registros
+  print(head(dados_completos))
+} else {
+  cat("Nenhum dado foi baixado com sucesso.")
+}
+
+
+sinesp_vde_data <- dados_completos |>
   dplyr::mutate(categoria = dplyr::case_when(
     evento == "Apreensão de Cocaína" ~ "drogas",
     evento == "Apreensão de Maconha" ~ "drogas",
@@ -133,4 +89,27 @@ df <- dplyr::bind_rows(df19,df20,df21,df22,df23,df24) |>
                 masculino,nao_informado,total,total_peso,total_vitimas) |>
   dplyr::arrange(uf,municipio,ano,mes,categoria,evento)
 
-usethis::use_data(df,compress = "xz")
+
+# Dados Populacionais
+
+# População mensal
+pop_mensal <- readxl::read_excel('data-raw/pop_projetada_mensal_dia_15.xlsx') |>
+  dplyr::mutate(data = as.Date(data, origin = "1899-12-30"))
+
+col_names <- names(pop_mensal)[2:29]
+
+pop_mensal <- pop_mensal |>
+  tidyr::pivot_longer(
+    cols = dplyr::all_of(col_names),
+    names_to = "uf",
+    values_to = "populacao"
+  ) |>
+  dplyr::select(uf, data, populacao)
+
+
+# População anual
+pop_anual <- readxl::read_excel('data-raw/pop_projetada_anual.xlsx')
+
+
+usethis::use_data(sinesp_vde_data, pop_mensal, pop_anual, compress = "xz",
+                  internal = TRUE, overwrite = TRUE)
