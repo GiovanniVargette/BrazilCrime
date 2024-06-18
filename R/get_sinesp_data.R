@@ -7,16 +7,15 @@
 #'Roubo de carga (Cargo Theft), Roubo de veículo (Vehicle Robbery), Roubo seguido de morte (Latrocínio) (Robbery Followed by Death)
 #'and Tentativa de homicídio (Attempted Homicide).
 #'
-#' @param state Estado a ser filtrado.
-#' @param typology Tipologia do crime.
-#' @param year Tipologia do crime.
-#' @param granularity Nível de granularidade (ano, mês, etc.).
-#' @param relative_values Cidade a ser filtrada.
-#' @param pivot Categoria de dados.
-#' @param geom Categoria de dados.
+#' @param state State to be filtered. Character.
+#' @param typology Crime typology. For example: Furto de veículo, Roubo de carga. Character.
+#' @param year Year of the crime. Integer.
+#' @param granularity Level of temporal granularity. Can be "year" or "month". Character.
+#' @param relative_values Values per 100,000 inhabitants. Boolean.
+#' @param pivot Pivot the table. Boolean.
+#' @param geom Include state geometry. Boolean.
 #'
-#' @return Um data frame com os dados filtrados.
-#'
+#' @return A data frame.
 #'
 #'@examples
 #' \donttest{

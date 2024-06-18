@@ -15,22 +15,22 @@ get_sinesp_data(
 )
 }
 \arguments{
-\item{state}{Estado a ser filtrado.}
+\item{state}{State to be filtered. Character.}
 
-\item{typology}{Tipologia do crime.}
+\item{typology}{Crime typology. For example: Furto de veículo, Roubo de carga. Character.}
 
-\item{year}{Tipologia do crime.}
+\item{year}{Year of the crime. Integer.}
 
-\item{granularity}{Nível de granularidade (ano, mês, etc.).}
+\item{granularity}{Level of temporal granularity. Can be "year" or "month". Character.}
 
-\item{relative_values}{Cidade a ser filtrada.}
+\item{relative_values}{Values per 100,000 inhabitants. Boolean.}
 
-\item{pivot}{Categoria de dados.}
+\item{pivot}{Pivot the table. Boolean.}
 
-\item{geom}{Categoria de dados.}
+\item{geom}{Include state geometry. Boolean.}
 }
 \value{
-Um data frame com os dados filtrados.
+A data frame.
 }
 \description{
 This function is responsible for collecting criminal data directly from the SINESP database.

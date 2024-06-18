@@ -14,20 +14,20 @@ get_sinesp_vde_data(
 )
 }
 \arguments{
-\item{state}{Estado a ser filtrado.}
+\item{state}{State to be filtered. Character.}
 
-\item{city}{Estado a ser filtrado.}
+\item{city}{City to be filtered. Character.}
 
-\item{year}{Tipologia do crime.}
+\item{year}{Year of the crime. Integer.}
 
-\item{category}{Tipologia do crime.}
+\item{category}{Crime category. Character.}
 
-\item{typology}{Tipologia do crime.}
+\item{typology}{Crime typology. For example: Furto de veículo, Roubo de carga. Character.}
 
-\item{granularity}{Nível de granularidade (ano, mês, etc.).}
+\item{granularity}{Level of temporal granularity. Can be "year" or "month". Character.}
 }
 \value{
-Um data frame com os dados filtrados.
+A data frame with the filtered data.
 }
 \description{
 This function is responsible for collecting criminal data directly from the SINESP VDE database.
