@@ -1,5 +1,5 @@
 Package: BrazilCrime
-Title: Accesses Brazilian Public Security Data from SINESP since 2015
+Title: Accesses Brazilian Public Security Data from SINESP Since 2015
 Version: 0.1
 Authors@R: 
     c(
