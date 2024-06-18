@@ -24,10 +24,14 @@
 #'
 #' @export
 get_sinesp_data <- function(state = 'all', typology = 'all', year = 'all',
-                            granularity = 'month', relative_values = F,
-                            pivot = F, geom = F) {
-  uf <- tipo_crime <- ano <- uf_abrev <- mes <- ocorrencias <- data <- populacao <- cod <- code_state <- abbrev_state <- geometry <- ocorrencias_100k_hab <- NULL
+                            granularity = 'month', relative_values = FALSE,
+                            pivot = FALSE, geom = FALSE) {
+
   options(scipen = 999, timeout = 1500)
+  old <- options(timeout = 60)
+  on.exit(options(old))
+
+  uf <- tipo_crime <- ano <- uf_abrev <- mes <- ocorrencias <- data <- populacao <- cod <- code_state <- abbrev_state <- geometry <- ocorrencias_100k_hab <- NULL
 
   link <- "http://dados.mj.gov.br/dataset/210b9ae2-21fc-4986-89c6-2006eb4db247/resource/feeae05e-faba-406c-8a4a-512aec91a9d1/download/indicadoressegurancapublicauf.xlsx"
 
@@ -91,11 +95,11 @@ get_sinesp_data <- function(state = 'all', typology = 'all', year = 'all',
   if (granularity != 'month' & granularity == 'year') {
     df <- df |>
       dplyr::group_by(uf, uf_abrev, tipo_crime, ano) |>
-      dplyr::summarise(ocorrencias = sum(ocorrencias, na.rm = T))
+      dplyr::summarise(ocorrencias = sum(ocorrencias, na.rm = TRUE))
   }
 
   # argument relative_values
-  if (relative_values == T & granularity == 'month') {
+  if (relative_values == TRUE & granularity == 'month') {
 
     df <- df |>
       dplyr::mutate(data = as.Date(paste(ano, mes, "15", sep = "-"),
@@ -105,7 +109,7 @@ get_sinesp_data <- function(state = 'all', typology = 'all', year = 'all',
       dplyr::select(-data)
   }
 
-  if (relative_values == T & granularity == 'year') {
+  if (relative_values == TRUE & granularity == 'year') {
     # dados da tabela 7358 do Sidra - projeção anual de 2018
 
     pop <- pop_anual |>
@@ -118,7 +122,7 @@ get_sinesp_data <- function(state = 'all', typology = 'all', year = 'all',
   }
 
   # argument geom
-  if (geom == T) {
+  if (geom == TRUE) {
     ufs_geom <- geobr::read_state() |>
       dplyr::select(code_state, abbrev_state) |>
       dplyr::rename('uf_abrev' = abbrev_state)
@@ -131,7 +135,7 @@ get_sinesp_data <- function(state = 'all', typology = 'all', year = 'all',
   }
 
   # argument pivot
-  if (pivot == T & relative_values == F) {
+  if (pivot == TRUE & relative_values == FALSE) {
 
     df <- df |>
       tidyr::pivot_wider(
@@ -139,13 +143,13 @@ get_sinesp_data <- function(state = 'all', typology = 'all', year = 'all',
         values_from = ocorrencias) |>
       janitor::clean_names()
 
-    if (geom == T) {
+    if (geom == TRUE) {
       df <- df |>
         dplyr::select(-geometry, dplyr::everything(), geometry)
     }
   }
 
-  if (pivot == T & relative_values == T) {
+  if (pivot == TRUE & relative_values == TRUE) {
 
     df <- df |>
       dplyr::select(-ocorrencias) |>
@@ -154,16 +158,13 @@ get_sinesp_data <- function(state = 'all', typology = 'all', year = 'all',
         values_from = ocorrencias_100k_hab) |>
       janitor::clean_names()
 
-    if (geom == T) {
+    if (geom == TRUE) {
       df <- df |>
         dplyr::select(-geometry, dplyr::everything(), geometry)
     }
   }
 
   message("Query completed.")
-
-  old <- options(timeout = 60)
-  on.exit(options(old))
 
   return(df)
 

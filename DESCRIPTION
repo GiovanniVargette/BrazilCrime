@@ -10,7 +10,7 @@ Authors@R:
     person("Marcelo", "Justus", , "mjustus@unicamp.br", role = c("aut"),
            comment = c(ORCID = "https://orcid.org/0000-0001-8660-1779")))
 Maintainer: Igor Laltuf <igorlaltuf@gmail.com>
-Description: Allows access to data from the Brazilian Public Security Information System (SINESP) by state and municipality.
+Description: Allows access to data from the Brazilian Public Security Information System (SINESP) by state and municipality. <https://www.gov.br/mj/pt-br/assuntos/sua-seguranca/seguranca-publica/sinesp-1>.
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
