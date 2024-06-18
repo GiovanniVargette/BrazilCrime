@@ -18,10 +18,13 @@
 
 - [X] Adicionar testes para as funções;
 
-- [X]  Adição da função que coleta os dados divulgados na plataforma [gov.br](https://www.gov.br/mj/pt-br/assuntos/sua-seguranca/seguranca-publica/estatistica/dados-nacionais-1/base-de-dados-e-notas-metodologicas-dos-gestores-estaduais-sinesp-vde-2022-e-2023) disponibilizados pelo Ministério da Justiça (Sinesp-VDE); e
+- [X]  Adição da função que coleta os dados divulgados na plataforma [gov.br](https://www.gov.br/mj/pt-br/assuntos/sua-seguranca/seguranca-publica/estatistica/dados-nacionais-1/base-de-dados-e-notas-metodologicas-dos-gestores-estaduais-sinesp-vde-2022-e-2023) disponibilizados pelo Ministério da Justiça (Sinesp-VDE); 
 
-- [ ]  Subir versão inicial para o CRAN; 
+- [X]  Subir versão inicial para o CRAN;
 
+- [ ] Incluir dados populacionais anuais por município e interpolar dados por mês para o argumento relative_values da função get_sinesp_vde_data; e
+
+- [ ] Adicionar microdados do SUS com estatísticas sobre violência (agressões).
 
 
 ## Sobre o projeto
