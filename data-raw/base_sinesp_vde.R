@@ -4,7 +4,6 @@ library(openxlsx)
 library(dplyr)
 options(timeout = 300)
 
-
 current_year <- as.numeric(format(Sys.Date(), "%Y"))
 anos <- 2015:current_year
 
@@ -13,7 +12,7 @@ base_url <- "https://www.gov.br/mj/pt-br/assuntos/sua-seguranca/seguranca-public
 # Funcion to download the data
 baixar_arquivo <- function(ano) {
   link <- paste0(base_url, ano, ".xlsx")
-  destfile <- paste0("bancovde-", ano, ".xlsx")
+  destfile <- paste0("data-raw/raw-sinesp-vde-data/bancovde-", ano, ".xlsx")
   tryCatch({
     download.file(link, destfile, mode = "wb")
     return(destfile)
