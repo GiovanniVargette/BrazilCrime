@@ -35,7 +35,8 @@ get_sinesp_vde_data <- function(state = 'all', city = "all",
   filter_data <- function(df, category, typology, city, state, year) {
     if (state != "all") {
       df <- df |>
-        dplyr::filter(uf %in% state)
+        dplyr::filter(tolower(uf) %in% tolower(state))
+
       if (city != "all" & city != FALSE) {
         df <- df |>
           dplyr::filter(tolower(municipio) %in% tolower(city))
@@ -53,12 +54,14 @@ get_sinesp_vde_data <- function(state = 'all', city = "all",
 
     if (category != "all") {
       df <- df |>
-        dplyr::filter(categoria %in% category)
-      if (typology != "all") {
-        df <- df |>
-          dplyr::filter(evento %in% typology)
-      }
+        dplyr::filter(tolower(categoria) %in% tolower(category))
     }
+
+    if (typology != "all") {
+      df <- df |>
+        dplyr::filter(tolower(evento) %in% tolower(typology))
+    }
+
     df
   }
 
@@ -68,7 +71,9 @@ get_sinesp_vde_data <- function(state = 'all', city = "all",
 
     df <- df |>
       dplyr::group_by(dplyr::across(dplyr::all_of(group_vars))) |>
-      dplyr::summarize(dplyr::across(dplyr::all_of(summarize_vars), ~ sum(.x, na.rm = TRUE)), .groups = 'drop')
+      dplyr::summarize(dplyr::across(dplyr::all_of(summarize_vars), ~ sum(.x,
+                                                                          na.rm = TRUE)),
+                       .groups = 'drop')
 
     df
   }
@@ -79,20 +84,6 @@ get_sinesp_vde_data <- function(state = 'all', city = "all",
     group_vars <- c("uf", "municipio", "ano", "categoria", "evento", "agente", "arma", "faixa_etaria")
     summarize_vars <- c("feminino", "masculino", "nao_informado", "total", "total_peso", "total_vitimas")
     df <- summarize_data(df, group_vars, summarize_vars)
-  } else {
-    if (category == "vitimas" & city != FALSE) {
-      group_vars <- c("uf", "municipio", "ano", "mes", "categoria", "evento")
-      summarize_vars <- c("feminino", "masculino", "nao_informado", "total_vitimas")
-      df <- summarize_data(df, group_vars, summarize_vars)
-    } else if (category == "drogas" & city != FALSE) {
-      group_vars <- c("uf", "municipio", "ano", "mes", "categoria", "evento")
-      summarize_vars <- c("total", "total_peso")
-      df <- summarize_data(df, group_vars, summarize_vars)
-    } else if (category == "all") {
-      group_vars <- c("uf", "ano", "categoria", "evento", "municipio")
-      summarize_vars <- c("total")
-      df <- summarize_data(df, group_vars, summarize_vars)
-    }
   }
 
   message("Query completed.")

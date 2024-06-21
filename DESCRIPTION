@@ -1,6 +1,6 @@
 Package: BrazilCrime
 Title: Accesses Brazilian Public Security Data from SINESP Since 2015
-Version: 0.1
+Version: 0.2
 Authors@R: 
     c(
     person("Giovanni", "Vargette", , "g216978@dac.unicamp.br", role = c("aut"),

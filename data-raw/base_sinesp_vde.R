@@ -1,25 +1,52 @@
-## code to prepare `sinesp_vde` dataset goes here
-
 library(openxlsx)
 library(dplyr)
 options(timeout = 300)
+
+devtools::load_all()
+
+# Descobrir a quantidade de linhas na tabela anterior
+tabela_anterior <- get_sinesp_vde_data()
+quantidade_linhas_anterior <- nrow(tabela_anterior)
 
 current_year <- as.numeric(format(Sys.Date(), "%Y"))
 anos <- 2015:current_year
 
 base_url <- "https://www.gov.br/mj/pt-br/assuntos/sua-seguranca/seguranca-publica/estatistica/download/dnsp-base-de-dados/bancovde-"
 
-# Funcion to download the data
+# Function to download the data
 baixar_arquivo <- function(ano) {
   link <- paste0(base_url, ano, ".xlsx")
   destfile <- paste0("data-raw/raw-sinesp-vde-data/bancovde-", ano, ".xlsx")
-  tryCatch({
-    download.file(link, destfile, mode = "wb")
-    return(destfile)
-  }, error = function(e) {
-    cat("Erro ao baixar o arquivo para o ano", ano, ": ", e$message, "\n")
-    return(NULL)
-  })
+
+  tentativas <- 0
+  max_tentativas <- 3
+  sucesso <- FALSE
+
+  repeat {
+    tentativas <- tentativas + 1
+    result <- tryCatch({
+      download.file(link, destfile, mode = "wb")
+      sucesso <- TRUE
+      return(destfile)
+    }, error = function(e) {
+      cat("Erro ao baixar o arquivo para o ano", ano, ": ", e$message, "\n")
+      return(NULL)
+    })
+
+    if (!is.null(result) || tentativas >= max_tentativas) {
+      break
+    }
+
+    cat("Tentativa", tentativas, "falhou. Retentando em 5 segundos...\n")
+    Sys.sleep(5)
+  }
+
+  if (!sucesso) {
+    writeLines("fail", "data-raw/log_status.txt")
+    stop("Não foi possível atualizar os dados devido à instabilidades do site do SINESP")
+  }
+
+  return(result)
 }
 
 # Function to read and treat the data
@@ -30,7 +57,6 @@ processar_dados <- function(destfile, ano) {
                   ano = ano)
   return(df)
 }
-
 
 lista_dfs <- lapply(anos, function(ano) {
   destfile <- baixar_arquivo(ano)
@@ -52,7 +78,6 @@ if (length(lista_dfs) > 0) {
 } else {
   cat("Nenhum dado foi baixado com sucesso.")
 }
-
 
 sinesp_vde_data <- dados_completos |>
   dplyr::mutate(categoria = dplyr::case_when(
@@ -88,8 +113,9 @@ sinesp_vde_data <- dados_completos |>
                 masculino,nao_informado,total,total_peso,total_vitimas) |>
   dplyr::arrange(uf,municipio,ano,mes,categoria,evento)
 
+quantidade_linhas_atual <- nrow(sinesp_vde_data)
 
-# Dados Populacionais
+# Dados Populacionais ----------------------------------------------------------
 
 # População mensal
 pop_mensal <- readxl::read_excel('data-raw/pop_projetada_mensal_dia_15.xlsx') |>
@@ -105,10 +131,17 @@ pop_mensal <- pop_mensal |>
   ) |>
   dplyr::select(uf, data, populacao)
 
-
 # População anual
 pop_anual <- readxl::read_excel('data-raw/pop_projetada_anual.xlsx')
 
+# Salvar os resultados ---------------------------------------------------------
 
-usethis::use_data(sinesp_vde_data, pop_mensal, pop_anual, compress = "xz",
-                  internal = TRUE, overwrite = TRUE)
+if(quantidade_linhas_atual > quantidade_linhas_anterior) {
+  usethis::use_data(sinesp_vde_data, pop_mensal, pop_anual, compress = "xz",
+                    internal = TRUE, overwrite = TRUE)
+  writeLines("Existem novos dados no SINESP VDE", "data-raw/log_status.txt")
+} else {
+  writeLines("Os dados permanecem os mesmos", "data-raw/log_status.txt")
+}
+
+# TODO: Faz sentido baixar os anos anteriores? Ou não é melhor baixar apenas o ano atual?

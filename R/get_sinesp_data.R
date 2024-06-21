@@ -76,13 +76,13 @@ get_sinesp_data <- function(state = 'all', typology = 'all', year = 'all',
   # argument state
   if (!"all" %in% state) {
     df <- df |>
-      dplyr::filter(uf_abrev %in% state)
+      dplyr::filter(tolower(uf_abrev) %in% tolower(state))
   }
 
   # argument typology
   if (!"all" %in% typology) {
     df <- df |>
-      dplyr::filter(tipo_crime %in% typology)
+      dplyr::filter(tolower(tipo_crime) %in% tolower(typology))
   }
 
   # argument year
