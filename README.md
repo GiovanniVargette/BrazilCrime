@@ -55,7 +55,7 @@ library(BrazilCrime)
 ```
 
 
-# Exemplo de Uso das Funções
+# Exemplos de uso das funções
 
 Baixar todos os dados do SINESP entre 2015 e 2022 com granularidade mensal.
 
@@ -78,9 +78,7 @@ dados <- get_sinesp_data(state = c('RJ', 'SP', 'MG'),
                          year = c(2018, 2019))
 ```
 
-
-Baixar os dados dos estados do Sul do Brasil sobre roubo de veículos para o ano 
-de 2022 com granularidade anual e com os vetores espaciais das UFs.
+#### Exemplo 1: Baixar os dados dos estados do Sul do Brasil sobre roubo de veículos para o ano de 2022 com granularidade anual e com os vetores espaciais das UFs.
 
 ```r
 data_sul <- get_sinesp_data(state = c('PR','SC','RS'),
@@ -99,6 +97,110 @@ ggplot(data = data_sul) +
        fill = "Qtd de ocorrências")
 ```
 <img src="man/figures/figure.png" width="100%" />
+
+
+#### Exemplo 2: Taxa mensal de roubo de carga ocorridos em SP de 2015 a 2022
+
+```
+txroub_carg_SP_mensal_ts <- get_sinesp_data(state = 'sp', 
+                                            typology = 'roubo de carga',  
+                                            granularity = 'month', 
+                                            relative_values = TRUE)
+
+names(txroub_carg_SP_mensal_ts)
+
+
+# Transformar para objeto ts (time series)
+txroub_carg_SP_mensal_ts <- ts(txroub_carg_SP_mensal_ts[,8], 
+                               start = c(1, 2015),
+                               frequency = 12)
+
+# Estimando um modelo ARIMA pelo auto.arima 
+(mod_auto <- auto.arima(txroub_carg_SP_mensal_ts, 
+                        lambda = 0, # transf. log
+                        stepwise = TRUE, 
+                        trace = TRUE, 
+                        approximation = FALSE, 
+                        allowdrift = TRUE, 
+                        allowmean = TRUE,
+                        test = "kpss",
+                        ic = c("bic")))
+
+# Análise visual dos resíduos
+par(mfrow=c(2,2))
+plot(mod_auto$residuals, main="Resíduos", col=2)
+Acf(mod_auto$residuals, main="Resíduos", col=4)
+Acf((mod_auto$residuals)^2, main="Resíduos ao quadrado", col=4)
+plot(density(mod_auto$residuals,
+             kernel = c("gaussian")), 
+     main="Resíduos", col=6) 
+
+
+# Testes formais nos resíduos
+
+# Autocorrelação
+Box.test(mod_auto$residuals,
+         lag=4, 
+         type="Ljung-Box", 
+         fitdf=2) 
+
+Box.test(mod_auto$residuals,
+         lag=8, 
+         type="Ljung-Box", 
+         fitdf=2) 
+
+Box.test(mod_auto$residuals,
+         lag=12, 
+         type="Ljung-Box", 
+         fitdf=2)   
+
+# Heterocedasticidade condicional
+ArchTest(mod_auto$residuals, lags=4) 
+ArchTest(mod_auto$residuals, lags=8)
+ArchTest(mod_auto$residuals, lags=12) 
+
+# Normalidade
+shapiro.test(mod_auto$residuals)
+
+# Previsões
+forecast(mod_auto, h=24, level=95)
+
+autoplot(forecast(mod_auto, h=24, level=95))
+```
+
+<img src="man/figures/grafico.png" width="100%" />
+
+
+
+#### Exemplo 3: Roubo de carga a cada 100 mil habitantes por UF em 2022
+```
+q <- get_sinesp_data(
+  typology = 'roubo de carga',
+  granularity = 'year',
+  year = 2022,
+  relative_values = TRUE,
+  geom = TRUE)
+
+ggplot(data = q) +
+  geom_sf(aes(fill = ocorrencias_100k_hab), color = 'white') +
+  scale_fill_viridis_c(option = "plasma", na.value = "white", name = NULL) +  
+  labs(
+    title = "Roubos de Carga por 100 mil Habitantes em 2022",
+    fill = "Ocorrências por 100k Habitantes"
+  ) +
+  theme_minimal() +
+  theme(
+    legend.position = "bottom",            
+    legend.direction = "horizontal",         
+    legend.title = element_blank(),         
+    panel.grid = element_blank(),
+    plot.title = element_text(hjust = 0.5)
+  )
+```
+
+<img src="man/figures/mapa.png" width="100%" />
+
+
 
 # Citação
 
