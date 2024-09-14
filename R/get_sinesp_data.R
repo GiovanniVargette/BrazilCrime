@@ -41,7 +41,7 @@ get_sinesp_data <- function(state = 'all', typology = 'all', year = 'all',
   file_path <- file.path("data-raw", file_name)
   link <- "http://dados.mj.gov.br/dataset/210b9ae2-21fc-4986-89c6-2006eb4db247/resource/feeae05e-faba-406c-8a4a-512aec91a9d1/download/indicadoressegurancapublicauf.xlsx"
 
-  try(download.file(link, destfile = file_path, mode = "wb"), silent = TRUE)
+  try(utils::download.file(link, destfile = file_path, mode = "wb"), silent = TRUE)
 
   suppressWarnings({
     # download and initial data treatment
