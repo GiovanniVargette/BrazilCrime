@@ -1,6 +1,6 @@
 Package: BrazilCrime
 Title: Accesses Brazilian Public Security Data from SINESP Since 2015
-Version: 0.2
+Version: 0.21
 Authors@R: 
     c(
     person("Giovanni", "Vargette", , "g216978@dac.unicamp.br", role = c("aut"),
@@ -9,7 +9,7 @@ Authors@R:
            comment = c(ORCID = "https://orcid.org/0000-0002-5614-4404")),
     person("Marcelo", "Justus", , "mjustus@unicamp.br", role = c("aut"),
            comment = c(ORCID = "https://orcid.org/0000-0001-8660-1779")))
-Maintainer: Igor Laltuf <igorlaltuf@gmail.com>
+Maintainer: Giovanni Vargette <g216978@dac.unicamp.br>
 Description: Allows access to data from the Brazilian Public Security Information System (SINESP) by state and municipality. <https://www.gov.br/mj/pt-br/assuntos/sua-seguranca/seguranca-publica/sinesp-1>.
 License: MIT + file LICENSE
 Encoding: UTF-8

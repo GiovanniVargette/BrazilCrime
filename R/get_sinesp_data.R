@@ -33,17 +33,20 @@ get_sinesp_data <- function(state = 'all', typology = 'all', year = 'all',
 
   uf <- tipo_crime <- ano <- uf_abrev <- mes <- ocorrencias <- data <- populacao <- cod <- code_state <- abbrev_state <- geometry <- ocorrencias_100k_hab <- NULL
 
-  link <- "http://dados.mj.gov.br/dataset/210b9ae2-21fc-4986-89c6-2006eb4db247/resource/feeae05e-faba-406c-8a4a-512aec91a9d1/download/indicadoressegurancapublicauf.xlsx"
-
   ufs_path <- system.file("extdata", "ufs.csv", package = "BrazilCrime")
 
   ufs <- utils::read.csv(ufs_path)
 
+  file_name <- "indicadoressegurancapublicauf.xlsx"
+  file_path <- file.path("data-raw", file_name)
+  link <- "http://dados.mj.gov.br/dataset/210b9ae2-21fc-4986-89c6-2006eb4db247/resource/feeae05e-faba-406c-8a4a-512aec91a9d1/download/indicadoressegurancapublicauf.xlsx"
+
+  try(download.file(link, destfile = file_path, mode = "wb"), silent = TRUE)
+
   suppressWarnings({
     # download and initial data treatment
     tryCatch({
-
-      df <- openxlsx::read.xlsx(link) |>
+      df <- openxlsx::read.xlsx('data-raw/indicadoressegurancapublicauf.xlsx') |>
         janitor::clean_names() |>
         dplyr::arrange(uf, tipo_crime, ano) |>
         dplyr::left_join(ufs, by = 'uf') |>
