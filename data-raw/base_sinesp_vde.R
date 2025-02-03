@@ -1,5 +1,6 @@
 library(openxlsx)
 library(dplyr)
+library(readxl)
 options(timeout = 300)
 
 devtools::load_all()
@@ -15,8 +16,11 @@ base_url <- "https://www.gov.br/mj/pt-br/assuntos/sua-seguranca/seguranca-public
 
 # Function to download the data
 baixar_arquivo <- function(ano) {
-  link <- paste0(base_url, ano, ".xlsx")
+  link <- paste0(base_url, ano, ".xlsx/@@download/file")
   destfile <- paste0("data-raw/raw-sinesp-vde-data/bancovde-", ano, ".xlsx")
+
+  #Cria diretorio se nao existir
+  dir.create(dirname(destfile), recursive = TRUE, showWarnings = FALSE)
 
   tentativas <- 0
   max_tentativas <- 3
@@ -51,7 +55,7 @@ baixar_arquivo <- function(ano) {
 
 # Function to read and treat the data
 processar_dados <- function(destfile, ano) {
-  df <- openxlsx::read.xlsx(destfile) %>%
+  df <- readxl::read_xlsx(destfile) %>%
     dplyr::mutate(data = as.Date(data_referencia, origin = "1899-12-30"),
                   mes = format(as.Date(data_referencia, origin = "1899-12-30"), "%m"),
                   ano = ano)
@@ -67,19 +71,28 @@ lista_dfs <- lapply(anos, function(ano) {
   }
 })
 
-# Remover os data frames que não foram baixados com sucesso
-lista_dfs <- Filter(Negate(is.null), lista_dfs)
+# Diretório onde os arquivos estão salvos
+dir_path <- "data-raw/raw-sinesp-vde-data"
 
-# Combinar todos os data frames em um único
-if (length(lista_dfs) > 0) {
-  dados_completos <- bind_rows(lista_dfs)
-  # Exibir os primeiros registros
-  print(head(dados_completos))
-} else {
-  cat("Nenhum dado foi baixado com sucesso.")
+# Listar todos os arquivos .xlsx no diretório
+arquivos <- list.files(dir_path, pattern = "\\.xlsx$", full.names = TRUE)
+
+# Função para ler e processar cada arquivo
+ler_e_processar <- function(filepath) {
+  ano <- as.numeric(gsub(".*bancovde-([0-9]{4})\\.xlsx$", "\\1", filepath)) # Extrai o ano do nome do arquivo
+
+  df <- readxl::read_xlsx(filepath) %>%
+    dplyr::mutate(data = as.Date(data_referencia, origin = "1899-12-30"),
+                  mes = format(as.Date(data_referencia, origin = "1899-12-30"), "%m"),
+                  ano = ano) # Adiciona a coluna do ano
+
+  return(df)
 }
 
-sinesp_vde_data <- dados_completos |>
+# Aplicar a função a todos os arquivos e unir os resultados
+dados_unificados <- do.call(bind_rows, lapply(arquivos, ler_e_processar))
+
+sinesp_vde_data <- dados_unificados |>
   dplyr::mutate(categoria = dplyr::case_when(
     evento == "Apreensão de Cocaína" ~ "drogas",
     evento == "Apreensão de Maconha" ~ "drogas",
@@ -110,7 +123,7 @@ sinesp_vde_data <- dados_completos |>
     evento == "Emissão de Alvarás de licença" ~ "bombeiros",
     evento == "Realização de vistorias" ~ "bombeiros")) |>
   dplyr::select(uf,municipio,ano,mes,categoria,evento,agente,arma,faixa_etaria,feminino,
-                masculino,nao_informado,total,total_peso,total_vitimas) |>
+                masculino,nao_informado,total,total_peso,total_vitima) |>
   dplyr::arrange(uf,municipio,ano,mes,categoria,evento)
 
 quantidade_linhas_atual <- nrow(sinesp_vde_data)
@@ -145,3 +158,28 @@ if(quantidade_linhas_atual > quantidade_linhas_anterior) {
 }
 
 # TODO: Faz sentido baixar os anos anteriores? Ou não é melhor baixar apenas o ano atual?
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+teste <- "https://www.gov.br/mj/pt-br/assuntos/sua-seguranca/seguranca-publica/estatistica/download/dnsp-base-de-dados/bancovde-2015.xlsx/@@download/file"
+arquivo <- "bancovde-2015.xlsx"
+
+download.file(teste,arquivo,mode = "wb")
+
+dados <- read_xlsx(arquivo)
