@@ -82,7 +82,7 @@ get_sinesp_vde_data <- function(state = 'all', city = "all",
 
   if (granularity == 'year') {
     group_vars <- c("uf", "municipio", "ano", "categoria", "evento", "agente", "arma", "faixa_etaria")
-    summarize_vars <- c("feminino", "masculino", "nao_informado", "total", "total_peso", "total_vitimas")
+    summarize_vars <- c("feminino", "masculino", "nao_informado", "total", "total_peso", "total_vitima")
     df <- summarize_data(df, group_vars, summarize_vars)
   }
 

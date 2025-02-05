@@ -157,6 +157,9 @@ if(quantidade_linhas_atual > quantidade_linhas_anterior) {
   writeLines("Os dados permanecem os mesmos", "data-raw/log_status.txt")
 }
 
+rm(dados_unificados,tabela_anterior,anos,arquivos,base_url,col_names,current_year,dir_path,
+   quantidade_linhas_anterior,quantidade_linhas_atual)
+
 # TODO: Faz sentido baixar os anos anteriores? Ou não é melhor baixar apenas o ano atual?
 
 
