@@ -2,9 +2,9 @@
 
 <!-- badges: start -->
 [![NPM](https://img.shields.io/npm/l/react)](https://github.com/GiovanniVargette/BrazilCrime/blob/master/LICENSE) 
-[![CRAN_Status_Badge](http://www.r-pkg.org/badges/version/BrazilCrime)](https://cran.r-project.org/package=BrazilCrime)
-[![CRAN_Download_Badge](http://cranlogs.r-pkg.org/badges/BrazilCrime)](https://CRAN.R-project.org/package=BrazilCrime)
-[![CRAN_Download_Badge](http://cranlogs.r-pkg.org/badges/grand-total/BrazilCrime)](https://CRAN.R-project.org/package=BrazilCrime)
+[![CRAN_Status_Badge](https://www.r-pkg.org/badges/version/BrazilCrime)](https://cran.r-project.org/package=BrazilCrime)
+[![CRAN_Download_Badge](https://cranlogs.r-pkg.org/badges/BrazilCrime)](https://CRAN.R-project.org/package=BrazilCrime)
+[![CRAN_Download_Badge](https://cranlogs.r-pkg.org/badges/grand-total/BrazilCrime)](https://CRAN.R-project.org/package=BrazilCrime)
 <!-- badges: end -->
 
 
