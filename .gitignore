@@ -4,3 +4,5 @@
 .httr-oauth
 .DS_Store
 data-raw/raw-sinesp-vde-data/
+/doc/
+/Meta/

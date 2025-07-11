@@ -14,32 +14,27 @@ get_sinesp_vde_data(
 )
 }
 \arguments{
-\item{state}{State to be filtered. Character.}
+\item{state}{State to be filtered. Character or vector. Default is "all".}
 
-\item{city}{City to be filtered. Character.}
+\item{city}{City to be filtered. Character or vector. Default is "all".}
 
-\item{year}{Year of the crime. Integer.}
+\item{year}{Year(s) of the crime. Integer or vector. Default is "all".}
 
-\item{category}{Crime category. Character.}
+\item{category}{Crime category. Character or vector. Default is "all".}
 
-\item{typology}{Crime typology. For example: Furto de veículo, Roubo de carga. Character.}
+\item{typology}{Crime typology (e.g., "Furto de veículo"). Character or vector. Default is "all".}
 
-\item{granularity}{Level of temporal granularity. Can be "year" or "month". Character.}
+\item{granularity}{Level of temporal granularity: "year" or "month". Default is "month".}
 }
 \value{
-A data frame with the filtered data.
+A data frame with the filtered or summarized data.
 }
 \description{
-This function is responsible for collecting criminal data directly from the SINESP VDE database.
-The data collected by this function starts temporally in January 2015 and goes until December 2022 for each brazilian city,
-covering crimes such as: Estupro (Rape), Furto de veículo (Vehicle Theft), Homicídio doloso (Intentional Homicide),
-Lesão corporal seguida de morte (Bodily Injury Followed by Death), Roubo a instituição financeira (Robbery of Financial Institution),
-Roubo de carga (Cargo Theft), Roubo de veículo (Vehicle Robbery), Roubo seguido de morte (Latrocínio) (Robbery Followed by Death)
-and Tentativa de homicídio (Attempted Homicide).
+This function collects criminal data from the SINESP VDE database (2015–2024).
+It supports filtering by state, city, year, crime category and typology.
 }
 \examples{
 \donttest{
-dados <- get_sinesp_vde_data()
+dados <- get_sinesp_vde_data(state = "SP", year = 2020:2022)
 }
-
 }
