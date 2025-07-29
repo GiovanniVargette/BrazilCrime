@@ -118,7 +118,7 @@ sp_anuais_vit <- get_sinesp_vde_data(
 # Quebrar nomes longos nos títulos dos facetes
 sp_anuais_vit$evento <- stringr::str_wrap(sp_anuais_vit$evento, width = 20)
 
-ggplot(sp_anuais_vit, aes(x = ano, y = total_vitimas)) +
+ggplot(sp_anuais_vit, aes(x = ano, y = total_vitima)) +
   geom_line(color = "#0072B2", size = 1.2) +
   geom_point(color = "#D55E00", size = 2) +
   facet_wrap(~evento) +
@@ -145,7 +145,7 @@ dados_var <- get_sinesp_vde_data(
   granularity = "month",
   year = 2015:2023)
 
-dados_var <- dados_var %>%
+dados_var <- dados_var |>
   dplyr::mutate(data = as.Date(paste0(ano, "-", mes, "-01")))
 
 
@@ -154,9 +154,9 @@ library(ggplot2)
 
 # Criar gráfico com smoothing
 ggplot(dados_var, aes(x = data)) +
-  geom_line(aes(y = total_vitimas, color = "Valores mensais"), size = 0.8) +
+  geom_line(aes(y = total_vitima, color = "Valores mensais"), size = 0.8) +
   geom_smooth(
-    aes(y = total_vitimas, color = "Tendência"),
+    aes(y = total_vitima, color = "Tendência"),
     method = "loess",
     se = FALSE,
     size = 1.2,
@@ -205,15 +205,19 @@ dados_cross <- get_sinesp_vde_data(
 tipos_desejados <- c("Feminicídio", "Homicídio doloso", "Suicídio",
                      "Lesão corporal seguida de morte")
 
-dados_filtrados <- dados_cross %>%
-  filter(evento %in% tipos_desejados) %>%
-  select(municipio, evento, total_vitimas) %>%
-  pivot_wider(names_from = evento, values_from = total_vitimas) %>%
-  drop_na()
+# Agrupar e pivotar os dados corretamente
+dados_filtrados <- dados_cross |>
+  filter(evento %in% tipos_desejados) |>
+  group_by(municipio, evento) |>
+  summarise(total_vitima = sum(total_vitima, na.rm = TRUE), .groups = "drop") |>
+  pivot_wider(names_from = evento, values_from = total_vitima) |>
+  drop_na() |>
+  mutate(across(-municipio, as.numeric))
 
 # Calcular matriz de correlação
-matriz_cor <- cor(dados_filtrados[-1], method = "pearson")  # Ignora a coluna "city"
+matriz_cor <- cor(dados_filtrados[-1], method = "pearson")
 
+# Gerar gráfico de correlação
 ggcorrplot(
   matriz_cor,
   lab = TRUE,
@@ -226,7 +230,7 @@ ggcorrplot(
   theme(
     plot.title = element_text(size = 14, hjust = 0.5),
     plot.margin = margin(t = 20, r = 10, b = 20, l = 10),
-    axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1)  # ← Rotaciona os rótulos
+    axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1)
   )
 
 ```
@@ -242,7 +246,7 @@ Ministério da Justiça e Segurança Pública (MJSP).
 Disponível em: \url{https://www.gov.br/mj/pt-br/assuntos/sua-seguranca/seguranca-publica/estatistica/dados-nacionais-1/base-de-dados-e-notas-metodologicas-dos-gestores-estaduais-sinesp-vde-2022-e-2023}. Acesso em: julho de 2025.
 
 \bibitem{brazilcrime}
-Santos, G. C. (2024). 
+Vargette, G., Laltuf, I., Justus, M. (2024). 
 \textit{BrazilCrime: Interface to Brazilian Crime Data}. 
 CRAN - Comprehensive R Archive Network. 
 Disponível em: \url{https://CRAN.R-project.org/package=BrazilCrime}

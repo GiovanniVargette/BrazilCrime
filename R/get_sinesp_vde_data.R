@@ -20,24 +20,9 @@
 get_sinesp_vde_data <- function(state = 'all', city = "all",
                                 year = 'all', category = "all",
                                 typology = 'all', granularity = 'month') {
-  uf <- municipio <- ano <- categoria <- evento <- NULL
+
+  uf <- municipio <- ano <- mes <- categoria <- evento <- NULL
   df <- sinesp_vde_data
-
-  # --- Corrigir colunas de vítimas com cuidado
-  colunas_vitimas <- c("feminino", "masculino", "nao_informado")
-  colunas_existentes <- colunas_vitimas[colunas_vitimas %in% names(df)]
-
-  if (length(colunas_existentes) == 3) {
-    df[colunas_existentes] <- lapply(df[colunas_existentes], function(x) {
-      if (is.factor(x)) x <- as.character(x)
-      suppressWarnings(as.numeric(x))
-    })
-
-    # Corrigir NA se tudo for NA — manter NA, não forçar 0
-    df$total_vitimas <- apply(df[colunas_existentes], 1, function(row) {
-      if (all(is.na(row))) NA else sum(row, na.rm = TRUE)
-    })
-  }
 
   # --- Função de filtro mais robusta
   filter_data <- function(df, category, typology, city, state, year) {
@@ -73,25 +58,12 @@ get_sinesp_vde_data <- function(state = 'all', city = "all",
     df
   }
 
-  # --- Função de agregação
-  summarize_data <- function(df, group_vars, summarize_vars) {
-    group_vars <- group_vars[group_vars %in% colnames(df)]
-    summarize_vars <- summarize_vars[summarize_vars %in% colnames(df)]
-
-    df |>
-      dplyr::group_by(dplyr::across(dplyr::all_of(group_vars))) |>
-      dplyr::summarize(dplyr::across(dplyr::all_of(summarize_vars), ~ sum(.x, na.rm = TRUE)),
-                       .groups = 'drop')
-  }
-
   # --- Aplicar filtros
   df <- filter_data(df, category, typology, city, state, year)
 
-  # --- Agregação por ano, se solicitado
-  if (granularity == 'year') {
-    group_vars <- c("uf", "municipio", "ano", "categoria", "evento", "agente", "arma", "faixa_etaria")
-    summarize_vars <- c("feminino", "masculino", "nao_informado", "total", "total_peso", "total_vitimas")
-    df <- summarize_data(df, group_vars, summarize_vars)
+  # Criar coluna 'data' no formato YYYY-MM como Date
+  if ("ano" %in% names(df) && "mes" %in% names(df)) {
+    df$data <- lubridate::ym(paste(df$ano, stringr::str_pad(df$mes, 2, pad = "0")))
   }
 
   message("Query completed.")
@@ -99,6 +71,3 @@ get_sinesp_vde_data <- function(state = 'all', city = "all",
   on.exit(options(old))
   return(df)
 }
-
-
-

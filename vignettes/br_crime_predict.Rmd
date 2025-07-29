@@ -1,0 +1,135 @@
+---
+title: "Fazendo Previsões com o BrazilCrime"
+author: |
+  Giovanni Vargette, Igor Laltuf, Marcelo Justus
+output:
+  bookdown::pdf_document2:
+    toc: true
+    toc_depth: 2
+    number_sections: true
+    latex_engine: xelatex
+    fig_caption: true
+    keep_tex: true
+    margin_top: 2.5cm
+    margin_bottom: 2.5cm
+    margin_left: 2.5cm
+    margin_right: 2.5cm
+header-includes: 
+  - \usepackage{indentfirst}
+  - \setlength{\parindent}{1.5em}
+  - \usepackage{fontspec}
+  - \usepackage{polyglossia}
+  - \usepackage{fvextra}
+  - \usepackage{booktabs}
+  - \usepackage{threeparttable}
+  - \usepackage{multirow}
+  - \usepackage{float}
+  - \DefineVerbatimEnvironment{Highlighting}{Verbatim}{breaklines=true,fontsize=\small,commandchars=\\\{\}}
+vignette: >
+  %\VignetteIndexEntry{Fazendo Previsões com o BrazilCrime}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+
+```{r setup, include=FALSE}
+library(BrazilCrime)
+library(forecast)
+library(ggplot2)
+library(lubridate)
+library(bookdown)
+
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
+```
+
+# Introdução
+
+A função br_crime_predict() do pacote BrazilCrime permite gerar previsões de séries temporais criminais com base em modelos estatísticos robustos. É especialmente útil para análises de tendências futuras em ocorrências ou vítimas de crimes, sendo compatível com os dados obtidos via get_sinesp_vde_data().
+
+A função utiliza modelos ARIMA e exponenciais suavizados para prever os valores futuros de forma automatizada, exibindo os resultados com gráficos claros e de fácil interpretação.
+
+# Sintaxe
+
+br_crime_predict(dados, ts_col="total", log = TRUE,freq = "monthly",h = 12,level = 95)
+
+## Argumentos
+
+-dados: Data_frame que contém as informações a serem utilizdas.
+
+-ts_col: Nome da variável que será utilizada na previsão (Por exemplo: "total", "total_vitima").
+
+-log: Lógico. Se TRUE, aplica transformação logarítmica nos dados antes da modelagem. Útil para séries com variância crescente.
+
+-freq: Granularidade dos dados, mensal ("monthly"), ou se estão agrupados anualmente ("yearly).
+
+-h: Número de períodos futuros a serem previstos (padrão: 12).
+
+-level: Nível de confiança que será utilizado na previsão. Padrão 95%.
+
+# Exemplo de Uso
+
+```{r exemplo 1, tidy=TRUE, out.width='\\textwidth', fig.width=6, fig.height=4, results='asis'}
+dados <- get_sinesp_vde_data(
+  state = "PE",
+  city = "Recife",
+  typology = "Homicídio doloso",
+  category = "vitimas",
+  granularity = "month",
+  year = 2015:2023
+)
+
+# Criar coluna de data (YYYY-MM)
+dados <- dados|>
+  dplyr::mutate(data = lubridate::ymd(paste0(ano, "-", mes, "-01"))) %>%
+  dplyr::arrange(data)
+
+# Rodar previsão
+br_crime_predict(dados = dados,ts_col = "total_vitima", log = TRUE)
+```
+
+# Interpretação
+
+O gráfico gerado inclui:
+
+A série histórica original
+
+A previsão para os próximos steps_ahead meses
+
+Intervalos de confiança para as estimativas
+
+Indicação visual das transformações (caso o log = TRUE tenha sido ativado)
+
+# Considerações 
+
+O desempenho do modelo pode variar de acordo com o comportamento da série (sazonalidade, tendência, etc.).
+
+É possível customizar os resultados combinando br_crime_predict() com filtros da função get_sinesp_vde_data() para diferentes cidades, anos ou tipologias.
+
+# Conclusão
+
+A função br_crime_predict() é uma ferramenta poderosa para análises exploratórias e preditivas de dados criminais. Seu uso, aliado às outras funções do pacote BrazilCrime, permite compreender padrões históricos e antecipar possíveis tendências com base em dados oficiais.
+
+
+\begin{thebibliography}{9}
+
+\bibitem{brazilcrime}
+Vargette, G., Laltuf, I., Justus, M.
+\textit{BrazilCrime: Interface to Brazilian Crime Data}.
+CRAN - Comprehensive R Archive Network.
+Disponível em: \url{https://CRAN.R-project.org/package=BrazilCrime}
+
+\bibitem{forecast}
+Hyndman, R. J., Athanasopoulos, G. (2021).
+\textit{Forecasting: Principles and Practice}.
+Disponível em: \url{https://otexts.com/fpp3/}
+
+\bibitem{lubridate}
+Grolemund, G., Wickham, H. (2011).
+\textit{Dates and Times Made Easy with lubridate}.
+\url{https://lubridate.tidyverse.org}
+
+\end{thebibliography}
+
+
+
+

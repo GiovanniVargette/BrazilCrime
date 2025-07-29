@@ -18,9 +18,11 @@ RoxygenNote: 7.3.2
 VignetteBuilder: knitr
 Imports: 
     dplyr,
+    forecast,
     geobr,
     ggplot2,
     janitor,
+    lubridate,
     openxlsx,
     tidyr,
     utils
@@ -29,5 +31,7 @@ Depends:
 LazyData: true
 LazyDataCompression: xz
 Suggests: 
+    knitr,
+    rmarkdown,
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
