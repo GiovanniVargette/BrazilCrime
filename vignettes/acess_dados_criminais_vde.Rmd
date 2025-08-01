@@ -1,0 +1,290 @@
+---
+title: "Acessando dados criminais com BrazilCrime"
+author: |
+  Giovanni Vargette, Igor Laltuf, Marcelo Justus
+output:
+  bookdown::pdf_document2:
+    toc: true
+    toc_depth: 2
+    number_sections: true
+    latex_engine: xelatex
+    fig_caption: true
+    keep_tex: true
+    margin_top: 2.5cm
+    margin_bottom: 2.5cm
+    margin_left: 2.5cm
+    margin_right: 2.5cm
+header-includes: 
+  - \usepackage{indentfirst}
+  - \setlength{\parindent}{1.5em}
+  - \usepackage{fontspec}
+  - \usepackage{polyglossia}
+  - \usepackage{fvextra}
+  - \usepackage{booktabs}
+  - \usepackage{threeparttable}
+  - \usepackage{multirow}
+  - \usepackage{float}
+  - \DefineVerbatimEnvironment{Highlighting}{Verbatim}{breaklines=true,fontsize=\small,commandchars=\\\{\}}
+vignette: >
+  %\VignetteIndexEntry{Acessando dados criminais com BrazilCrime}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+
+
+```{r setup, include=FALSE}
+library(BrazilCrime)
+library(ggplot2)
+library(kableExtra)
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
+```
+
+# Introdução
+
+O pacote BrazilCrime permite acessar dados públicos de segurança do sistema SINESP/VDE com filtros por localidade, tipologia criminal, categoria e período.
+
+A função central, get_sinesp_vde_data(), permite obter dados por UF, município, categoria (arma de fogo, bombeiros, desaparecidos/localizados, drogas, mandado de prisão cumprido, ocorrencias, profissionais de segurança e vitimas), para 28 tipologias de evento (Apreensão de Cocaína, Apreensão de Maconha, Arma de Fogo Apreendida, Atendimento pré-hospitalar, Busca e salvamento, Combate a incêndios, Emissão de Alvarás de licença, Estupro, Feminicídio, Homicídio doloso, Lesão corporal seguida de morte, Mandado de prisão cumprido, Morte de Agente do Estado, Morte no trânsito ou em decorrência dele (exceto homicídio doloso), Morte por intervenção de Agente do Estado, Mortes a esclarecer (sem indício de crime), Pessoa Desaparecida, Pessoa Localizada, Realização de vistorias, Roubo a instituição financeira, Roubo de carga, Roubo de veículo, Roubo seguido de morte (latrocínio), Suicídio, Suicídio de Agente do Estado, Tentativa de homicídio, Tráfico de drogas) com granularidade mensal ou anual.
+
+
+# Exemplos de Uso
+
+## Exemplo 1 - Visualização simples
+
+```{r exemplo 1, tidy=TRUE, out.width='\\textwidth', fig.width=6, fig.height=4, results='asis'}
+dados <- get_sinesp_vde_data()
+
+kable(head(dados), format = "latex", booktabs = TRUE, caption = "Visualização dos primeiros registros") |>
+  kable_styling(latex_options = c("scale_down", "hold_position"))
+```
+
+## Exemplo 2 - Filtrar por Estado, cidade e tipologia
+```{r exemplo2, tidy=TRUE, out.width='\\textwidth', fig.width=6, fig.height=4, results='asis'}
+recife <- get_sinesp_vde_data(
+  state = "PE",
+  city = "Recife",
+  typology = "Homicídio doloso",
+  year = 2020:2022
+)
+
+kable(head(recife), format = "latex", booktabs = TRUE, caption = "Visualização dos primeiros registros") |>
+  kable_styling(latex_options = c("scale_down", "hold_position"))
+```
+
+## Exemplo 3 - Dados agregados por ano, para Estado e categoria específica
+```{r exemplo3, tidy=TRUE, out.width='\\textwidth', fig.width=6, fig.height=4, results='asis'}
+sp_anuais <- get_sinesp_vde_data(
+  state = "SP",
+  category = "ocorrencias",
+  granularity = "year"
+)
+
+
+kable(head(sp_anuais), format = "latex", booktabs = TRUE, caption = "Visualização dos primeiros registros") |>
+  kable_styling(latex_options = c("scale_down", "hold_position"))
+```
+
+## Exemplo 4 - Visualização rápida
+```{r exemplo4, tidy=TRUE, out.width='\\textwidth', fig.width=6, fig.height=4, results='asis'}
+library(ggplot2)
+
+ggplot(sp_anuais, aes(x = ano, y = total)) +
+  geom_line(color = "#0072B2", size = 1.2) +
+  geom_point(color = "#D55E00", size = 2) +
+  facet_wrap(~evento) +
+  labs(
+    title = "Evolução anual de ocorrências no Estado de SP",
+    y = "Total de ocorrências",
+    x = "Ano"
+  ) +
+  theme_minimal(base_size = 12) +
+  theme(
+    plot.title = element_text(face = "bold", size = 14),
+    axis.text.x = element_text(angle = 45, hjust = 1)
+  )
+```
+
+## Exemplo 5 - Visualização de dados com vítimas
+```{r exemplo5, tidy=TRUE, out.width='\\textwidth', fig.width=6, fig.height=4, results='asis'}
+library(ggplot2)
+
+sp_anuais_vit <- get_sinesp_vde_data(
+  state = "SP",
+  city = "SÃO PAULO",
+  category = "vitimas",
+  granularity = "year"
+)
+
+# Quebrar nomes longos nos títulos dos facetes
+sp_anuais_vit$evento <- stringr::str_wrap(sp_anuais_vit$evento, width = 20)
+
+ggplot(sp_anuais_vit, aes(x = ano, y = total_vitima)) +
+  geom_line(color = "#0072B2", size = 1.2) +
+  geom_point(color = "#D55E00", size = 2) +
+  facet_wrap(~evento) +
+  labs(
+    title = "Evolução anual de vítimas na cidade de SP",
+    y = "Total de vítimas",
+    x = "Ano"
+  ) +
+  theme_minimal(base_size = 12) +
+  theme(
+    plot.title = element_text(face = "bold", size = 14),
+    axis.text.x = element_text(angle = 45, hjust = 1),
+    strip.text = element_text(size = 8))
+```
+
+## Exemplo 6 - Buscando tendências com o argumento geom_smooth em ggplot
+```{r exemplo6,tidy=TRUE, out.width='\\textwidth', fig.width=6, fig.height=4, results='asis'}
+# Carregar dados
+dados_var <- get_sinesp_vde_data(
+  state = "BA",
+  typology = "Homicídio doloso",
+  city = "Salvador",
+  category = "vitimas",
+  granularity = "month",
+  year = 2015:2023)
+
+dados_var <- dados_var |>
+  dplyr::mutate(data = as.Date(paste0(ano, "-", mes, "-01")))
+
+
+# Carregar pacotes
+library(ggplot2)
+
+# Criar gráfico com smoothing
+ggplot(dados_var, aes(x = data)) +
+  geom_line(aes(y = total_vitima, color = "Valores mensais"), size = 0.8) +
+  geom_smooth(
+    aes(y = total_vitima, color = "Tendência"),
+    method = "loess",
+    se = FALSE,
+    size = 1.2,
+    span = 0.3
+  ) +
+  scale_color_manual(
+    name = "Série Temporal",
+    values = c("Valores mensais" = "#0072B2", "Tendência" = "#D55E00")
+  ) +
+  labs(
+    title = "Tendência de homicídios dolosos em Salvador - BA (2015–2023)",
+    x = "Data",
+    y = "Total de Vítimas"
+  ) +
+  theme_minimal(base_size = 12) +
+  theme(
+    plot.title = element_text(face = "bold", size = 10, hjust = 0.5),
+    axis.text.x = element_text(angle = 45, hjust = 1),
+    panel.grid.minor = element_blank(),
+    legend.position = "top",
+    legend.direction = "horizontal",
+    legend.box = "horizontal",
+    legend.title = element_text(size = 9, face = "bold"),
+    legend.text = element_text(size = 9)
+  )
+
+
+```
+
+## Exemplo 7 - Análise de correlação
+```{r exemplo7,tidy=TRUE, out.width='\\textwidth', fig.width=6, fig.height=4, results='asis'}
+# Pacotes necessários
+library(BrazilCrime)
+library(tidyverse)
+library(ggcorrplot)
+
+# Buscar dados para SP em 2022 (cross-section municipal)
+dados_cross <- get_sinesp_vde_data(
+  state = "SP",
+  granularity = "year",
+  year = 2022,
+  category = "vitimas"
+)
+
+# Selecionar algumas tipologias comuns
+tipos_desejados <- c("Feminicídio", "Homicídio doloso", "Suicídio",
+                     "Lesão corporal seguida de morte")
+
+# Agrupar e pivotar os dados corretamente
+dados_filtrados <- dados_cross |>
+  filter(evento %in% tipos_desejados) |>
+  group_by(municipio, evento) |>
+  summarise(total_vitima = sum(total_vitima, na.rm = TRUE), .groups = "drop") |>
+  pivot_wider(names_from = evento, values_from = total_vitima) |>
+  drop_na() |>
+  mutate(across(-municipio, as.numeric))
+
+# Calcular matriz de correlação
+matriz_cor <- cor(dados_filtrados[-1], method = "pearson")
+
+# Gerar gráfico de correlação
+ggcorrplot(
+  matriz_cor,
+  lab = TRUE,
+  lab_size = 3,
+  colors = c("#D73027", "white", "#1A9850"),
+  outline.color = "gray80"
+) +
+  ggtitle("Correlação entre diferentes crimes em SP (2022)") +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(size = 14, hjust = 0.5),
+    plot.margin = margin(t = 20, r = 10, b = 20, l = 10),
+    axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1)
+  )
+
+```
+---
+
+
+
+\begin{thebibliography}{9}
+
+\bibitem{mjsp}
+Ministério da Justiça e Segurança Pública (MJSP). 
+\textit{SINESP - Sistema Nacional de Informações de Segurança Pública}. 
+Disponível em: \url{https://www.gov.br/mj/pt-br/assuntos/sua-seguranca/seguranca-publica/estatistica/dados-nacionais-1/base-de-dados-e-notas-metodologicas-dos-gestores-estaduais-sinesp-vde-2022-e-2023}. Acesso em: julho de 2025.
+
+\bibitem{brazilcrime}
+Vargette, G., Laltuf, I., Justus, M. (2024). 
+\textit{BrazilCrime: Interface to Brazilian Crime Data}. 
+CRAN - Comprehensive R Archive Network. 
+Disponível em: \url{https://CRAN.R-project.org/package=BrazilCrime}
+
+\bibitem{ggplot2}
+Wickham, H. (2016). 
+\textit{ggplot2: Elegant Graphics for Data Analysis}. 
+Springer-Verlag New York. \url{https://ggplot2.tidyverse.org}
+
+\bibitem{ggcorrplot}
+Gu, Z., Eils, R., Schlesner, M. (2022). 
+\textit{ggcorrplot: Visualization of a Correlation Matrix using ggplot2}. 
+Disponível em: \url{https://cran.r-project.org/package=ggcorrplot}
+
+\bibitem{rbase}
+R Core Team (2024). 
+\textit{R: A Language and Environment for Statistical Computing}. 
+R Foundation for Statistical Computing, Vienna, Austria. 
+\url{https://www.R-project.org/}
+
+\bibitem{kableextra}
+Zhu, H. (2021). 
+\textit{kableExtra: Construct Complex Table with 'kable' and Pipe Syntax}. 
+CRAN. \url{https://cran.r-project.org/package=kableExtra}
+
+\bibitem{dplyr}
+Wickham, H., François, R., Henry, L., Müller, K. (2019). 
+\textit{dplyr: A Grammar of Data Manipulation}. 
+\url{https://dplyr.tidyverse.org}
+
+\bibitem{tidyr}
+Wickham, H. (2023). 
+\textit{tidyr: Tidy Messy Data}. 
+\url{https://tidyr.tidyverse.org}
+
+\bibitem{stringr}
+Chang, W. (2023). 
+\textit{stringr: Simple, Consistent Wrappers for Common String Operations}. 
+\url{https://stringr.tidyverse.org}
+
+\end{thebibliography}
