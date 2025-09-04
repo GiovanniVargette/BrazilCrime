@@ -34,9 +34,9 @@ vignette: >
 
 
 ```{r setup, include=FALSE}
-library(BrazilCrime)
-library(ggplot2)
-library(kableExtra)
+#library(BrazilCrime)
+#library(ggplot2)
+#library(kableExtra)
 knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
 ```
 
@@ -52,63 +52,63 @@ A função central, get_sinesp_vde_data(), permite obter dados por UF, municípi
 ## Exemplo 1 - Visualização simples
 
 ```{r exemplo 1, tidy=TRUE, out.width='\\textwidth', fig.width=6, fig.height=4, results='asis'}
-dados <- get_sinesp_vde_data()
+dados <- BrazilCrime::get_sinesp_vde_data()
 
-kable(head(dados), format = "latex", booktabs = TRUE, caption = "Visualização dos primeiros registros") |>
-  kable_styling(latex_options = c("scale_down", "hold_position"))
+kableExtra::kable(head(dados), format = "latex", booktabs = TRUE, caption = "Visualização dos primeiros registros") |>
+  kableExtra::kable_styling(latex_options = c("scale_down", "hold_position"))
 ```
 
 ## Exemplo 2 - Filtrar por Estado, cidade e tipologia
 ```{r exemplo2, tidy=TRUE, out.width='\\textwidth', fig.width=6, fig.height=4, results='asis'}
-recife <- get_sinesp_vde_data(
+recife <- BrazilCrime::get_sinesp_vde_data(
   state = "PE",
   city = "Recife",
   typology = "Homicídio doloso",
   year = 2020:2022
 )
 
-kable(head(recife), format = "latex", booktabs = TRUE, caption = "Visualização dos primeiros registros") |>
-  kable_styling(latex_options = c("scale_down", "hold_position"))
+kableExtra::kable(head(recife), format = "latex", booktabs = TRUE, caption = "Visualização dos primeiros registros") |>
+  kableExtra::kable_styling(latex_options = c("scale_down", "hold_position"))
 ```
 
 ## Exemplo 3 - Dados agregados por ano, para Estado e categoria específica
 ```{r exemplo3, tidy=TRUE, out.width='\\textwidth', fig.width=6, fig.height=4, results='asis'}
-sp_anuais <- get_sinesp_vde_data(
+sp_anuais <- BrazilCrime::get_sinesp_vde_data(
   state = "SP",
   category = "ocorrencias",
   granularity = "year"
 )
 
 
-kable(head(sp_anuais), format = "latex", booktabs = TRUE, caption = "Visualização dos primeiros registros") |>
-  kable_styling(latex_options = c("scale_down", "hold_position"))
+kableExtra::kable(head(sp_anuais), format = "latex", booktabs = TRUE, caption = "Visualização dos primeiros registros") |>
+  kableExtra::kable_styling(latex_options = c("scale_down", "hold_position"))
 ```
 
 ## Exemplo 4 - Visualização rápida
 ```{r exemplo4, tidy=TRUE, out.width='\\textwidth', fig.width=6, fig.height=4, results='asis'}
-library(ggplot2)
+#library(ggplot2)
 
-ggplot(sp_anuais, aes(x = ano, y = total)) +
-  geom_line(color = "#0072B2", size = 1.2) +
-  geom_point(color = "#D55E00", size = 2) +
-  facet_wrap(~evento) +
-  labs(
+ggplot2::ggplot(sp_anuais, ggplot2::aes(x = ano, y = total)) +
+  ggplot2::geom_line(color = "#0072B2", size = 1.2) +
+  ggplot2::geom_point(color = "#D55E00", size = 2) +
+  ggplot2::facet_wrap(~evento) +
+  ggplot2::labs(
     title = "Evolução anual de ocorrências no Estado de SP",
     y = "Total de ocorrências",
     x = "Ano"
   ) +
-  theme_minimal(base_size = 12) +
-  theme(
-    plot.title = element_text(face = "bold", size = 14),
-    axis.text.x = element_text(angle = 45, hjust = 1)
+  ggplot2::theme_minimal(base_size = 12) +
+  ggplot2::theme(
+    plot.title = ggplot2::element_text(face = "bold", size = 14),
+    axis.text.x = ggplot2::element_text(angle = 45, hjust = 1)
   )
 ```
 
 ## Exemplo 5 - Visualização de dados com vítimas
 ```{r exemplo5, tidy=TRUE, out.width='\\textwidth', fig.width=6, fig.height=4, results='asis'}
-library(ggplot2)
+#library(ggplot2)
 
-sp_anuais_vit <- get_sinesp_vde_data(
+sp_anuais_vit <- BrazilCrime::get_sinesp_vde_data(
   state = "SP",
   city = "SÃO PAULO",
   category = "vitimas",
@@ -118,26 +118,26 @@ sp_anuais_vit <- get_sinesp_vde_data(
 # Quebrar nomes longos nos títulos dos facetes
 sp_anuais_vit$evento <- stringr::str_wrap(sp_anuais_vit$evento, width = 20)
 
-ggplot(sp_anuais_vit, aes(x = ano, y = total_vitima)) +
-  geom_line(color = "#0072B2", size = 1.2) +
-  geom_point(color = "#D55E00", size = 2) +
-  facet_wrap(~evento) +
-  labs(
+ggplot2::ggplot(sp_anuais_vit, ggplot2::aes(x = ano, y = total_vitima)) +
+  ggplot2::geom_line(color = "#0072B2", size = 1.2) +
+  ggplot2::geom_point(color = "#D55E00", size = 2) +
+  ggplot2::facet_wrap(~evento) +
+  ggplot2::labs(
     title = "Evolução anual de vítimas na cidade de SP",
     y = "Total de vítimas",
     x = "Ano"
   ) +
-  theme_minimal(base_size = 12) +
-  theme(
-    plot.title = element_text(face = "bold", size = 14),
-    axis.text.x = element_text(angle = 45, hjust = 1),
-    strip.text = element_text(size = 8))
+  ggplot2::theme_minimal(base_size = 12) +
+  ggplot2::theme(
+    plot.title = ggplot2::element_text(face = "bold", size = 14),
+    axis.text.x = ggplot2::element_text(angle = 45, hjust = 1),
+    strip.text = ggplot2::element_text(size = 8))
 ```
 
 ## Exemplo 6 - Buscando tendências com o argumento geom_smooth em ggplot
 ```{r exemplo6,tidy=TRUE, out.width='\\textwidth', fig.width=6, fig.height=4, results='asis'}
 # Carregar dados
-dados_var <- get_sinesp_vde_data(
+dados_var <- BrazilCrime::get_sinesp_vde_data(
   state = "BA",
   typology = "Homicídio doloso",
   city = "Salvador",
@@ -150,37 +150,37 @@ dados_var <- dados_var |>
 
 
 # Carregar pacotes
-library(ggplot2)
+#library(ggplot2)
 
 # Criar gráfico com smoothing
-ggplot(dados_var, aes(x = data)) +
-  geom_line(aes(y = total_vitima, color = "Valores mensais"), size = 0.8) +
-  geom_smooth(
-    aes(y = total_vitima, color = "Tendência"),
+ggplot2::ggplot(dados_var, ggplot2::aes(x = data)) +
+  ggplot2::geom_line(ggplot2::aes(y = total_vitima, color = "Valores mensais"), size = 0.8) +
+  ggplot2::geom_smooth(
+    ggplot2::aes(y = total_vitima, color = "Tendência"),
     method = "loess",
     se = FALSE,
     size = 1.2,
     span = 0.3
   ) +
-  scale_color_manual(
+  ggplot2::scale_color_manual(
     name = "Série Temporal",
     values = c("Valores mensais" = "#0072B2", "Tendência" = "#D55E00")
   ) +
-  labs(
+  ggplot2::labs(
     title = "Tendência de homicídios dolosos em Salvador - BA (2015–2023)",
     x = "Data",
     y = "Total de Vítimas"
   ) +
-  theme_minimal(base_size = 12) +
-  theme(
-    plot.title = element_text(face = "bold", size = 10, hjust = 0.5),
-    axis.text.x = element_text(angle = 45, hjust = 1),
-    panel.grid.minor = element_blank(),
+  ggplot2::theme_minimal(base_size = 12) +
+  ggplot2::theme(
+    plot.title = ggplot2::element_text(face = "bold", size = 10, hjust = 0.5),
+    axis.text.x = ggplot2::element_text(angle = 45, hjust = 1),
+    panel.grid.minor = ggplot2::element_blank(),
     legend.position = "top",
     legend.direction = "horizontal",
     legend.box = "horizontal",
-    legend.title = element_text(size = 9, face = "bold"),
-    legend.text = element_text(size = 9)
+    legend.title = ggplot2::element_text(size = 9, face = "bold"),
+    legend.text = ggplot2::element_text(size = 9)
   )
 
 
@@ -189,12 +189,12 @@ ggplot(dados_var, aes(x = data)) +
 ## Exemplo 7 - Análise de correlação
 ```{r exemplo7,tidy=TRUE, out.width='\\textwidth', fig.width=6, fig.height=4, results='asis'}
 # Pacotes necessários
-library(BrazilCrime)
-library(tidyverse)
-library(ggcorrplot)
+#library(BrazilCrime)
+#library(tidyverse)
+#library(ggcorrplot)
 
 # Buscar dados para SP em 2022 (cross-section municipal)
-dados_cross <- get_sinesp_vde_data(
+dados_cross <- BrazilCrime::get_sinesp_vde_data(
   state = "SP",
   granularity = "year",
   year = 2022,
@@ -207,30 +207,30 @@ tipos_desejados <- c("Feminicídio", "Homicídio doloso", "Suicídio",
 
 # Agrupar e pivotar os dados corretamente
 dados_filtrados <- dados_cross |>
-  filter(evento %in% tipos_desejados) |>
-  group_by(municipio, evento) |>
-  summarise(total_vitima = sum(total_vitima, na.rm = TRUE), .groups = "drop") |>
-  pivot_wider(names_from = evento, values_from = total_vitima) |>
-  drop_na() |>
-  mutate(across(-municipio, as.numeric))
+  dplyr::filter(evento %in% tipos_desejados) |>
+  dplyr::group_by(municipio, evento) |>
+  dplyr::summarise(total_vitima = sum(total_vitima, na.rm = TRUE), .groups = "drop") |>
+  tidyr::pivot_wider(names_from = evento, values_from = total_vitima) |>
+  tidyr::drop_na() |>
+  dplyr::mutate(across(-municipio, as.numeric))
 
 # Calcular matriz de correlação
 matriz_cor <- cor(dados_filtrados[-1], method = "pearson")
 
 # Gerar gráfico de correlação
-ggcorrplot(
+ggcorrplot::ggcorrplot(
   matriz_cor,
   lab = TRUE,
   lab_size = 3,
   colors = c("#D73027", "white", "#1A9850"),
   outline.color = "gray80"
 ) +
-  ggtitle("Correlação entre diferentes crimes em SP (2022)") +
-  theme_minimal() +
-  theme(
-    plot.title = element_text(size = 14, hjust = 0.5),
-    plot.margin = margin(t = 20, r = 10, b = 20, l = 10),
-    axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1)
+  ggplot2::ggtitle("Correlação entre diferentes crimes em SP (2022)") +
+  ggplot2::theme_minimal() +
+  ggplot2::theme(
+    plot.title = ggplot2::element_text(size = 14, hjust = 0.5),
+    plot.margin = ggplot2::margin(t = 20, r = 10, b = 20, l = 10),
+    axis.text.x = ggplot2::element_text(angle = 45, vjust = 1, hjust = 1)
   )
 
 ```

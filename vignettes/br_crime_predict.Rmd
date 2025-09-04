@@ -33,11 +33,11 @@ vignette: >
 
 
 ```{r setup, include=FALSE}
-library(BrazilCrime)
-library(forecast)
-library(ggplot2)
-library(lubridate)
-library(bookdown)
+#library(BrazilCrime)
+#library(forecast)
+#library(ggplot2)
+#library(lubridate)
+#library(bookdown)
 
 knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
 ```
@@ -69,7 +69,7 @@ br_crime_predict(dados, ts_col="total", log = TRUE,freq = "monthly",h = 12,level
 # Exemplo de Uso
 
 ```{r exemplo 1, tidy=TRUE, out.width='\\textwidth', fig.width=6, fig.height=4, results='asis'}
-dados <- get_sinesp_vde_data(
+dados <- BrazilCrime::get_sinesp_vde_data(
   state = "PE",
   city = "Recife",
   typology = "Homicídio doloso",
@@ -80,11 +80,11 @@ dados <- get_sinesp_vde_data(
 
 # Criar coluna de data (YYYY-MM)
 dados <- dados|>
-  dplyr::mutate(data = lubridate::ymd(paste0(ano, "-", mes, "-01"))) %>%
+  dplyr::mutate(data = lubridate::ymd(paste0(ano, "-", mes, "-01"))) |>
   dplyr::arrange(data)
 
 # Rodar previsão
-br_crime_predict(dados = dados,ts_col = "total_vitima", log = TRUE)
+BrazilCrime::br_crime_predict(dados = dados,ts_col = "total_vitima", log = TRUE)
 ```
 
 # Interpretação

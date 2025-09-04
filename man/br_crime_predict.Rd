@@ -14,20 +14,20 @@ br_crime_predict(
 )
 }
 \arguments{
-\item{dados}{Data.frame contendo as colunas da série: evento, uf, municipio, data, e uma coluna com os valores numéricos.}
+\item{dados}{Data.frame contendo as colunas da serie: evento, uf, municipio, data, e uma coluna com os valores numericos.}
 
-\item{ts_col}{Nome da coluna (string) com os dados da série temporal (ex: "total_vitima").}
+\item{ts_col}{Nome da coluna (string) com os dados da serie temporal (ex: "total_vitima").}
 
-\item{freq}{Frequência temporal: "monthly" ou "yearly". Padrão é "monthly".}
+\item{freq}{Frequencia temporal: "monthly" ou "yearly". Padrao e "monthly".}
 
-\item{h}{Horizonte da previsão. Padrão: 12.}
+\item{h}{Horizonte da previsao. Padrao: 12.}
 
-\item{log}{Lógico. Se TRUE, aplica transformação logarítmica. Padrão: FALSE.}
+\item{log}{Logico. Se TRUE, aplica transformacao logaritmica. Padrao: FALSE.}
 
-\item{level}{Nível de confiança do intervalo de previsão. Padrão: 95.}
+\item{level}{Nivel de confianca do intervalo de previsao. Padrão: 95.}
 }
 \value{
-Lista com modelo ajustado, previsão e gráfico ggplot2.
+Lista com modelo ajustado, previsao e grafico ggplot2.
 }
 \description{
 Performs automatic ARIMA modeling and forecasting on crime time series data.

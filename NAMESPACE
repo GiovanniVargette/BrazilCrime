@@ -2,3 +2,5 @@
 
 export(br_crime_predict)
 export(get_sinesp_vde_data)
+importFrom(stats,setNames)
+importFrom(stats,ts)

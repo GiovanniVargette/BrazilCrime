@@ -1,6 +1,6 @@
 Package: BrazilCrime
 Title: Accesses Brazilian Public Security Data from SINESP Since 2015
-Version: 0.2.1
+Version: 0.3.0
 Authors@R: 
     c(
     person("Giovanni", "Vargette", , "g216978@dac.unicamp.br", role = c("aut", "cre"),
@@ -19,19 +19,20 @@ VignetteBuilder: knitr
 Imports: 
     dplyr,
     forecast,
-    geobr,
-    ggplot2,
-    janitor,
-    lubridate,
-    openxlsx,
-    tidyr,
-    utils
+    ggplot2
 Depends: 
     R (>= 2.10)
 LazyData: true
 LazyDataCompression: xz
 Suggests: 
-    knitr,
-    rmarkdown,
+     knitr,
+  rmarkdown,
+  bookdown,
+  kableExtra,
+  tidyr,
+  stringr,
+  ggcorrplot,
+  formatR,
+  lubridate,
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
