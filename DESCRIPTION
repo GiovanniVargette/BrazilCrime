@@ -10,7 +10,7 @@ Authors@R:
     person("Marcelo", "Justus", , "mjustus@unicamp.br", role = c("aut"),
            comment = c(ORCID = "https://orcid.org/0000-0001-8660-1779")))
 Maintainer: Giovanni Vargette <g216978@dac.unicamp.br>
-Description: Allows access to data from the Brazilian Public Security Information System (SINESP) by state and municipality. <https://www.gov.br/mj/pt-br/assuntos/sua-seguranca/seguranca-publica/sinesp-1>.
+Description: Allows access to data from the Brazilian Public Security Information System (SINESP) by state and municipality. Ressalta-se que o pacote apenas extrai os dados e facilita a sua manipulação no R. Portanto, tem como único objetivo facilitar a pesquisa empírica. Todos os créditos dos dados são do SINESP , uma plataforma de informações integradas desenvolvida e mantida pela Secretaria Nacional de Segurança Pública (SENASP) do Ministério da Justiça e Segurança Pública. <https://www.gov.br/mj/pt-br/assuntos/sua-seguranca/seguranca-publica/sinesp-1>.
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
