@@ -200,7 +200,9 @@ ggplot(data = q) +
 
 <img src="man/figures/mapa.png" width="100%" />
 
+# Agradecimentos
 
+Marcelo Justus agradece ao CNPq pela Bolsa de Produtividade em Pesquisa (processo nº 312685/2021-1), que viabilizou a realização deste trabalho. Giovanni agradece ao CNPq pelas Bolsas de Iniciação Científica recebidas de 2023 a 2025, fundamentais para sua participação neste projeto.
 
 # Citação
 
