@@ -13,7 +13,7 @@
 #' @importFrom stats ts setNames
 #' @export
 
-br_crime_predict <- function(dados, ts_col, freq = "monthly", h = 12, log = FALSE, level = 95) {
+br_crime_predict <- function(dados, ts_col, freq = "monthly", h = 12, level = 95) {
   if (missing(dados) || missing(ts_col)) {
     stop("Voce deve fornecer o data.frame 'dados' e o nome da coluna da serie temporal ('ts_col')")
   }
@@ -44,10 +44,9 @@ br_crime_predict <- function(dados, ts_col, freq = "monthly", h = 12, log = FALS
   ts_obj <- ts(ts_data, start = c(start_year, start_period), frequency = frequency)
 
   # Ajuste do modelo ARIMA com BIC fixado
-  lambda <- if (log) 0 else NULL
   model <- forecast::auto.arima(
     ts_obj,
-    lambda = lambda,
+    lambda = TRUE,
     stepwise = TRUE,
     trace = FALSE,
     approximation = FALSE,
@@ -77,25 +76,24 @@ br_crime_predict <- function(dados, ts_col, freq = "monthly", h = 12, log = FALS
   # Metadados para o título
   tipo_crime <- unique(dados$evento)
   localidade <- paste0(unique(dados$municipio), " - ", unique(dados$uf))
-  periodo <- paste0(format(min(dados$data), "%b/%Y"), " a ", format(max(dados$data), "%b/%Y"))
-  conf_label <- paste0("Intervalo de Confianca (", level, "%)")
+  conf_label <- paste0("Intervalo de confiança (", level, "%)")
 
-  # Gráfico
+
   p <- ggplot2::ggplot(df_plot, ggplot2::aes(x = date)) +
-    ggplot2::geom_line(ggplot2::aes(y = value, color = "Observado"), linewidth = 0.9, na.rm = TRUE) +
-    ggplot2::geom_line(ggplot2::aes(y = forecast, color = "Previsao"), linetype = "dashed", linewidth = 1.2, na.rm = TRUE) +
+    ggplot2::geom_line(ggplot2::aes(y = value, color = "Valor real (observado)"), linewidth = 0.9, na.rm = TRUE) +
+    ggplot2::geom_line(ggplot2::aes(y = forecast, color = "Valor previsto"), linetype = "dashed", linewidth = 1.2, na.rm = TRUE) +
     ggplot2::geom_ribbon(ggplot2::aes(ymin = lower, ymax = upper, fill = conf_label), alpha = 0.25, na.rm = TRUE) +
     ggplot2::labs(
-      title = paste0("Previsao para ", tipo_crime),
-      subtitle = paste0(localidade, " | ", periodo, " | H=", h, " | ", ifelse(log, "log-transformado", "sem log")),
-      x = "Data",
-      y = "Numero de Ocorrencias",
-      color = "Legenda",
+      title = paste0(tipo_crime),
+      subtitle = paste0(localidade),
+      y = "Quantidade",
+      x = "",
+      color = "",
       fill = ""
     ) +
-    ggplot2::scale_color_manual(values = c("Observado" = "#1B9E77", "Previsao" = "#D95F02")) +
+    ggplot2::scale_color_manual(values = c("Valor real (observado)" = "#1B9E77", "Valor previsto" = "#D95F02")) +
     ggplot2::scale_fill_manual(values = setNames("#7570B3", conf_label)) +
-    ggplot2::scale_x_date(date_labels = "%b %Y", date_breaks = "3 months") +
+    ggplot2::scale_x_date(date_labels = "%b %Y", date_breaks = "6 months") +
     ggplot2::theme_minimal(base_size = 14) +
     ggplot2::theme(
       legend.position = "bottom",

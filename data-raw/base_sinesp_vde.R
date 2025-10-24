@@ -18,7 +18,7 @@ base_url <- "https://www.gov.br/mj/pt-br/assuntos/sua-seguranca/seguranca-public
 # Função que monta o link correto
 montar_link <- function(ano) {
   if (ano == 2017) {
-    return(paste0(base_url, "bancovde-2017-1.xlsx/@@download/file"))
+    return(paste0(base_url, "bancovde-2017.xlsx/@@download/file"))
   } else {
     return(paste0(base_url, "bancovde-", ano, ".xlsx/@@download/file"))
   }
@@ -90,7 +90,7 @@ sinesp_vde_data <- dados_unificados %>%
                     "Morte no trânsito ou em decorrência dele (exceto homicídio doloso)",
                     "Mortes a esclarecer (sem indício de crime)", "Roubo seguido de morte (latrocínio)",
                     "Suicídio", "Tentativa de homicídio", "Estupro",
-                    "Morte por intervenção de Agente do Estado") ~ "vitimas",
+                    "Morte por intervenção de Agente do Estado","Tentativa de feminicídio") ~ "vitimas",
       evento %in% c("Furto de veículo", "Roubo a instituição financeira", "Roubo de carga",
                     "Roubo de veículo") ~ "ocorrencias",
       evento %in% c("Pessoa Desaparecida", "Pessoa Localizada") ~ "desaparecidos/localizados",

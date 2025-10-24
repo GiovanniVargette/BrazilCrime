@@ -9,7 +9,7 @@ br_crime_predict(
   ts_col,
   freq = "monthly",
   h = 12,
-  log = FALSE,
+  log = TRUE,
   level = 95
 )
 }
