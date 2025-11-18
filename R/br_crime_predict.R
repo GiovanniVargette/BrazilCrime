@@ -46,7 +46,7 @@ br_crime_predict <- function(dados, ts_col, freq = "monthly", h = 12, level = 95
   # Ajuste do modelo ARIMA com BIC fixado
   model <- forecast::auto.arima(
     ts_obj,
-    lambda = TRUE,
+    lambda = "auto",
     stepwise = TRUE,
     trace = FALSE,
     approximation = FALSE,

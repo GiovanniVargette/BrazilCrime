@@ -4,14 +4,7 @@
 \alias{br_crime_predict}
 \title{br_crime_predict Function}
 \usage{
-br_crime_predict(
-  dados,
-  ts_col,
-  freq = "monthly",
-  h = 12,
-  log = TRUE,
-  level = 95
-)
+br_crime_predict(dados, ts_col, freq = "monthly", h = 12, level = 95)
 }
 \arguments{
 \item{dados}{Data.frame contendo as colunas da serie: evento, uf, municipio, data, e uma coluna com os valores numericos.}
@@ -22,9 +15,9 @@ br_crime_predict(
 
 \item{h}{Horizonte da previsao. Padrao: 12.}
 
-\item{log}{Logico. Se TRUE, aplica transformacao logaritmica. Padrao: FALSE.}
-
 \item{level}{Nivel de confianca do intervalo de previsao. Padrão: 95.}
+
+\item{log}{Logico. Se TRUE, aplica transformacao logaritmica. Padrao: FALSE.}
 }
 \value{
 Lista com modelo ajustado, previsao e grafico ggplot2.
