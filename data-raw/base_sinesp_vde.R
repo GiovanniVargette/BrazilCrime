@@ -18,7 +18,7 @@ base_url <- "https://www.gov.br/mj/pt-br/assuntos/sua-seguranca/seguranca-public
 # Função que monta o link correto
 montar_link <- function(ano) {
   if (ano == 2017) {
-    return(paste0(base_url, "bancovde-2017-1.xlsx/@@download/file"))
+    return(paste0(base_url, "bancovde-2017.xlsx/@@download/file"))
   } else {
     return(paste0(base_url, "bancovde-", ano, ".xlsx/@@download/file"))
   }
@@ -89,7 +89,7 @@ sinesp_vde_data <- dados_unificados %>%
       evento %in% c("Feminicídio", "Homicídio doloso", "Lesão corporal seguida de morte",
                     "Morte no trânsito ou em decorrência dele (exceto homicídio doloso)",
                     "Mortes a esclarecer (sem indício de crime)", "Roubo seguido de morte (latrocínio)",
-                    "Suicídio", "Tentativa de homicídio", "Estupro",
+                    "Suicídio", "Tentativa de homicídio", "Estupro", "Tentativa de feminicídio",
                     "Morte por intervenção de Agente do Estado") ~ "vitimas",
       evento %in% c("Furto de veículo", "Roubo a instituição financeira", "Roubo de carga",
                     "Roubo de veículo") ~ "ocorrencias",
@@ -102,7 +102,7 @@ sinesp_vde_data <- dados_unificados %>%
     )
   ) %>%
   select(uf, municipio, ano, mes, categoria, evento, agente, arma, faixa_etaria,
-         feminino, masculino, nao_informado, total, total_peso, total_vitima) %>%
+         feminino, masculino, nao_informado, total, total_peso, total_vitima,abrangencia) %>%
   arrange(uf, municipio, ano, mes, categoria, evento)
 
 # Salva apenas se há novos dados
