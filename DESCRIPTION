@@ -1,6 +1,6 @@
 Package: BrazilCrime
 Title: Accesses Brazilian Public Security Data from SINESP Since 2015
-Version: 0.3.0
+Version: 0.2.1
 Authors@R: 
     c(
     person("Giovanni", "Vargette", , "g216978@dac.unicamp.br", role = c("aut", "cre"),
@@ -10,7 +10,7 @@ Authors@R:
     person("Marcelo", "Justus", , "mjustus@unicamp.br", role = c("aut"),
            comment = c(ORCID = "https://orcid.org/0000-0001-8660-1779")))
 Maintainer: Giovanni Vargette <g216978@dac.unicamp.br>
-Description: Allows access to data from the Brazilian Public Security Information System (SINESP) by state and municipality. It should be emphasized that the package only extracts the data and facilitates its manipulation in R. Therefore, its sole purpose is to support empirical research. All data credits belong to SINESP, an integrated information platform developed and maintained by the National Secretariat of Public Security (SENASP) of the Ministry of Justice and Public Security. <https://www.gov.br/mj/pt-br/assuntos/sua-seguranca/seguranca-publica/sinesp-1>.
+Description: Allows access to data from the Brazilian Public Security Information System (SINESP) by state and municipality. <https://www.gov.br/mj/pt-br/assuntos/sua-seguranca/seguranca-publica/sinesp-1>.
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
@@ -19,20 +19,19 @@ VignetteBuilder: knitr
 Imports: 
     dplyr,
     forecast,
-    ggplot2
+    geobr,
+    ggplot2,
+    janitor,
+    lubridate,
+    openxlsx,
+    tidyr,
+    utils
 Depends: 
-    R (>= 4.1.0)
+    R (>= 3.5)
 LazyData: true
 LazyDataCompression: xz
 Suggests: 
-     knitr,
-  rmarkdown,
-  bookdown,
-  kableExtra,
-  tidyr,
-  stringr,
-  ggcorrplot,
-  formatR,
-  lubridate,
+    knitr,
+    rmarkdown,
     testthat (>= 3.0.0)
 Config/testthat/edition: 3

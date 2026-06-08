@@ -89,8 +89,8 @@ sinesp_vde_data <- dados_unificados %>%
       evento %in% c("Feminicídio", "Homicídio doloso", "Lesão corporal seguida de morte",
                     "Morte no trânsito ou em decorrência dele (exceto homicídio doloso)",
                     "Mortes a esclarecer (sem indício de crime)", "Roubo seguido de morte (latrocínio)",
-                    "Suicídio", "Tentativa de homicídio", "Estupro",
-                    "Morte por intervenção de Agente do Estado","Tentativa de feminicídio") ~ "vitimas",
+                    "Suicídio", "Tentativa de homicídio", "Estupro", "Tentativa de feminicídio",
+                    "Morte por intervenção de Agente do Estado") ~ "vitimas",
       evento %in% c("Furto de veículo", "Roubo a instituição financeira", "Roubo de carga",
                     "Roubo de veículo") ~ "ocorrencias",
       evento %in% c("Pessoa Desaparecida", "Pessoa Localizada") ~ "desaparecidos/localizados",
@@ -102,7 +102,7 @@ sinesp_vde_data <- dados_unificados %>%
     )
   ) %>%
   select(uf, municipio, ano, mes, categoria, evento, agente, arma, faixa_etaria,
-         feminino, masculino, nao_informado, total, total_peso, total_vitima) %>%
+         feminino, masculino, nao_informado, total, total_peso, total_vitima,abrangencia) %>%
   arrange(uf, municipio, ano, mes, categoria, evento)
 
 # Salva apenas se há novos dados
